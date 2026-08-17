@@ -15,6 +15,7 @@
  */
 
 import { useCallback, useState, type FC } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { AppHeader, type TabId } from './components/AppHeader';
 import { OptionsPanel } from './components/OptionsPanel';
 import { EquationCard } from './components/EquationCard';
@@ -81,6 +82,7 @@ function App() {
         </p>
         <p>POWERED BY- <a href="https://github.com/AhmedAlmaghz/KaTeX4Arabic" target="_blank" rel="noopener noreferrer">AHMED ALMAGHZ </a> - 2026</p>
       </footer>
+      <Analytics />
     </div>
   );
 }
