@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.local
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Test coverage
+coverage/
+
+# Temporary / scratch files
+*.tmp
+*.tmp.*
+.*.mjs
+.*.ps1
+.*.tmp
+debug.*
+
