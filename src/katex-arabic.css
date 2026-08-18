@@ -383,3 +383,76 @@
   line-height: 1.2;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   Arabic character metrics compensation
+   ─────────────────────────────────────────────────────────────
+   KaTeX's font-metrics tables only cover Latin math glyphs. When an
+   Arabic character (digit ٠-٩, letter س, operator جا, …) is rendered,
+   KaTeX creates a SymbolNode with height=0, depth=0, width=0 because
+   the character is not in its metrics tables. The browser still draws
+   the glyph at its natural font size, but KaTeX's layout engine
+   (vlists, struts, fraction bars, sqrt signs, super/sub positions)
+   was computed against the zero metrics — so Arabic text can appear
+   misaligned, clipped, or colliding with adjacent symbols.
+
+   The rules below compensate at the CSS level WITHOUT overriding the
+   carefully-tuned line-height / display / vertical-align values set
+   earlier in this file. They are purely additive:
+     1. Enable OpenType features for correct Arabic shaping.
+     2. Prevent clipping of tall Arabic ascenders / descenders.
+     3. Add minimal spacing to prevent symbol collision.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. OpenType features for correct Arabic shaping. These are essential
+      for fonts like Amiri, Noto Naskh Arabic, and Scheherazade New to
+      render contextual letter forms, ligatures (لا, لله), and proper
+      mark (harakat) positioning. This is purely additive and does not
+      affect layout metrics. */
+.katex-arabic .katex .mord.text,
+.katex-arabic .katex .mop:not(.op-symbol):not(.op-limits),
+.katex-arabic .katex .text {
+  font-feature-settings:
+    'liga' 1,    /* standard ligatures (لا, etc.) */
+    'calt' 1,    /* contextual alternates (letter forms) */
+    'kern' 1,    /* kerning */
+    'mark' 1,    /* mark positioning (harakat) */
+    'mkmk' 1;    /* mark-to-mark positioning */
+  font-variant-ligatures: common-ligatures contextual;
+  text-rendering: optimizeLegibility;
+}
+
+/* 2. Arabic characters must never be clipped by overflow:hidden on
+      parent vlist rows. KaTeX's vlist-t uses overflow:visible by
+      default, but some nested containers can clip tall Arabic
+      ascenders (ا, ل, ك) or descenders (ي, ج, ع). */
+.katex-arabic .katex .vlist-t,
+.katex-arabic .katex .vlist-r,
+.katex-arabic .katex .vlist {
+  overflow: visible;
+}
+
+/* 3. Operator names (جا, جتا, نها, …) rendered via \operatorname{}.
+      These are the most visible Arabic elements. A small horizontal
+      padding prevents collision with adjacent symbols without changing
+      the display mode or line-height (which are deliberately tuned
+      above). */
+.katex-arabic .katex .mop:not(.op-symbol):not(.op-limits) {
+  padding-inline: 0.04em;
+}
+
+/* 4. Ensure the radical sign (√) and its Arabic radicand don't collide.
+      The mirrored sqrt (bar on the right) needs extra clearance for
+      Arabic text which tends to be wider than Latin. */
+.katex-arabic.mirror-sqrt .katex .sqrt .mord.text,
+.katex-arabic.mirror-sqrt .katex .sqrt .mop:not(.op-symbol) {
+  padding-inline-start: 0.08em;
+}
+
+/* 5. Matrix cells with Arabic content. Centre-align horizontally,
+      matching Latin matrix behaviour. */
+.katex-arabic .katex .mtable .mord.text,
+.katex-arabic .katex .mtable .mop:not(.op-symbol) {
+  text-align: center;
+}
+
+

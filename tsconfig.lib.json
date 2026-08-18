@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist/lib",
+    "rootDir": "src/lib/katex-arabic",
+    "allowImportingTsExtensions": false,
+    "baseUrl": "."
+  },
+  "include": ["src/lib/katex-arabic"],
+  "exclude": ["src/lib/katex-arabic/__tests__"]
+}

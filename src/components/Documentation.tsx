@@ -161,7 +161,8 @@ export const Documentation: FC<DocumentationProps> = ({ options }) => {
 
         <h3>الاستخدام المباشر (Vanilla JS):</h3>
         <pre className="doc-code" dir="ltr">
-{`import { renderArabicToString } from './lib/katex-arabic';
+{`import { renderArabicToString } from 'katex-arabic';
+import 'katex-arabic/katex-arabic.css';
 
 const html = renderArabicToString('\\\\sin^2(x) + \\\\cos^2(x) = 1', {
   numerals: 'arabic',
@@ -173,17 +174,18 @@ document.getElementById('eq').innerHTML = html;`}
 
         <h3>الاستخدام مع React:</h3>
         <pre className="doc-code" dir="ltr">
-{`import { MathBlock } from './components/MathEquation';
+{`import { useArabicKatex } from 'katex-arabic/hooks';
+import 'katex-arabic/katex-arabic.css';
 
-<MathBlock
-  latex="\\\\int_{0}^{\\\\infty} e^{-x^2} dx = \\\\frac{\\\\sqrt{\\\\pi}}{2}"
-  options={{ numerals: 'arabic', translateFuncs: true }}
-/>`}
+function Equation({ latex }) {
+  const html = useArabicKatex(latex, { numerals: 'arabic' });
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+}`}
         </pre>
 
         <h3>معالجة LaTeX فقط (بدون عرض):</h3>
         <pre className="doc-code" dir="ltr">
-{`import { processLatex } from './lib/katex-arabic';
+{`import { processLatex } from 'katex-arabic';
 
 const processed = processLatex('\\\\sin(x) + dx');
 // → "\\\\operatorname{جا}(x) + \\\\text{د}\\\\text{س}"`}

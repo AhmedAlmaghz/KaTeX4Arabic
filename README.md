@@ -34,7 +34,8 @@
 ```bash
 npm install        # تثبيت الاعتماديات
 npm run dev        # تشغيل بيئة التطوير
-npm run build      # بناء إنتاجي (ملف واحد بنمط vite-plugin-singlefile)
+npm run build      # بناء تطبيق العرض (ملفات JS/CSS منفصلة)
+npm run build:all  # بناء المكتبة القابلة للنشر (JS + أنواع + CSS)
 npm run preview    # معاينة البناء
 npm run typecheck  # فحص الأنواع (TypeScript)
 npm test           # تشغيل الاختبارات (Vitest)
@@ -45,16 +46,46 @@ npm run check      # فحص شامل: typecheck + tests + build
 
 ---
 
+## 📦 التثبيت كحزمة npm
+
+```bash
+npm install katex-arabic
+```
+
+الحزمة تتطلب `katex` كاعتماد نظير (peer dependency)، و`react` اختيارياً
+لاستخدام الخطاطيف والمكوّنات:
+
+```bash
+npm install katex
+```
+
+### الاستيراد
+
+```ts
+// الدوال الأساسية
+import { renderArabicToString, renderArabic, processLatex } from 'katex-arabic';
+
+// خطاطيف React (اختياري)
+import { useArabicKatex, useArabicKatexResult } from 'katex-arabic/hooks';
+
+// ملف الأنماط — يجب استيراده مرة واحدة في تطبيقك
+import 'katex-arabic/katex-arabic.css';
+```
+
+---
+
 ## 📁 بنية المشروع
 
 ```
 ├── index.html                  # نقطة الدخول + تحميل الخطوط العربية
-├── vite.config.ts              # إعدادات Vite (React + Tailwind + singlefile)
+├── vite.config.ts              # إعدادات Vite لتطبيق العرض (React + Tailwind)
+├── vite.lib.config.ts          # إعدادات بناء المكتبة (ESM + CJS)
+├── tsconfig.lib.json           # إعدادات إصدار أنواع TypeScript للمكتبة
 ├── src/
 │   ├── App.tsx                 # جذر التطبيق وأقسامه
 │   ├── main.tsx                # نقطة الإقلاع
 │   ├── index.css               # الأنماط العامة (Tailwind + المكوّنات)
-│   ├── katex-arabic.css        # نسق عرض المعادلات (المكتبة)
+│   ├── katex-arabic.css        # نسق عرض المعادلات (يُنسخ إلى dist/lib)
 │   ├── components/             # مكوّنات الواجهة
 │   │   ├── MathEquation.tsx    # <MathEquation> / <MathBlock> / <MathInline>
 │   │   ├── OptionsPanel.tsx    # لوحة إعدادات العرض
@@ -64,12 +95,13 @@ npm run check      # فحص شامل: typecheck + tests + build
 │   ├── data/examples.ts        # معادلات المعرض
 │   └── lib/katex-arabic/       # ★ المكتبة الأساسية
 │       ├── index.ts            # الواجهة العامة (public API)
+│       ├── render.ts           # دوال العرض (renderToString, render, batch)
 │       ├── rtlRenderer.ts      # خط أنابيب المعالجة + القيم الافتراضية
 │       ├── arabicNumerals.ts   # تحويل الأرقام وتنسيق الفواصل
 │       ├── arabicFunctions.ts  # ترجمة الدوال والمتغيرات والتفاضلات
 │       ├── arabicSymbols.ts    # عكس الرموز (مقارنة/أسهم/أقواس)
 │       ├── protectedRegions.ts # حماية نصوص \text{} من المعالجة
-│       ├── hooks.ts            # خطاطيف React لجاهز العرض
+│       ├── hooks.ts            # خطاطيف React جاهزة للعرض
 │       ├── types.ts            # أنواع TypeScript
 │       └── __tests__/          # اختبارات الوحدات والخط الأنبوبي
 └── package.json
@@ -81,7 +113,8 @@ npm run check      # فحص شامل: typecheck + tests + build
 ### Vanilla JS
 
 ```ts
-import { renderArabicToString } from './lib/katex-arabic';
+import { renderArabicToString } from 'katex-arabic';
+import 'katex-arabic/katex-arabic.css';
 
 const html = renderArabicToString('\\sin^2(x) + \\cos^2(x) = 1', {
   numerals: 'arabic',
@@ -94,7 +127,7 @@ document.getElementById('eq')!.innerHTML = html;
 ### معالجة LaTeX فقط (بدون عرض)
 
 ```ts
-import { processLatex, validateLatex } from './lib/katex-arabic';
+import { processLatex, validateLatex } from 'katex-arabic';
 
 const processed = processLatex('\\sin(x) + dx');
 // → "\\operatorname{جا}(\\text{س}) + \\text{د}\\text{س}"
@@ -110,7 +143,7 @@ if (validateLatex('\\frac{1}{2} + x') === null) {
 وذاكرة التخزين المؤقت مشتركة):
 
 ```ts
-import { renderArabicBatch } from './lib/katex-arabic';
+import { renderArabicBatch } from 'katex-arabic';
 
 const results = renderArabicBatch(
   ['x = 1', { latex: 'y = 2', options: { numerals: 'latin' } }],
@@ -126,7 +159,7 @@ const results = renderArabicBatch(
 (مثلاً عند تغيّر الخيارات جذرياً أو في الاختبارات):
 
 ```ts
-import { clearRenderCache } from './lib/katex-arabic';
+import { clearRenderCache } from 'katex-arabic';
 clearRenderCache();
 ```
 
@@ -150,7 +183,7 @@ import { MathBlock, MathInline } from './components/MathEquation';
 ### خطاطيف React
 
 ```tsx
-import { useArabicKatex, useArabicKatexResult } from './lib/katex-arabic/hooks';
+import { useArabicKatex, useArabicKatexResult } from 'katex-arabic/hooks';
 
 const html = useArabicKatex('x^2 + y^2', { numerals: 'arabic' });
 const { ok, error } = useArabicKatexResult(latex, options);

@@ -17,7 +17,7 @@
  */
 
 import { useMemo, useDeferredValue } from 'react';
-import { renderArabicWithMeta, renderArabicBatch } from './index';
+import { renderArabicWithMeta, renderArabicBatch } from './render';
 import { processArabicLatex } from './rtlRenderer';
 import type { PartialArabicOptions, RenderResult } from './types';
 

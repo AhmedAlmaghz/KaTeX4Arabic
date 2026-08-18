@@ -1,10 +1,63 @@
 {
-  "name": "KaTeX4Arabic",
-  "private": true,
-  "version": "0.1.0",
+  "name": "katex-arabic",
+  "version": "1.0.0",
+  "description": "Render LaTeX math with Arabic transforms: Arabic-Indic numerals, translated function/variable names, RTL mirroring, and full KaTeX compatibility.",
   "author": "Ahmed Almaghz",
-  "github": "https://github.com/ahmedalmaghz/KaTeX4Arabic",
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedalmaghz/KaTeX4Arabic.git"
+  },
+  "homepage": "https://github.com/ahmedalmaghz/KaTeX4Arabic#readme",
+  "bugs": {
+    "url": "https://github.com/ahmedalmaghz/KaTeX4Arabic/issues"
+  },
+  "keywords": [
+    "katex",
+    "arabic",
+    "math",
+    "latex",
+    "rtl",
+    "mathematics",
+    "arabic-numerals",
+    "right-to-left"
+  ],
+  "main": "./dist/lib/index.cjs",
+  "module": "./dist/lib/index.mjs",
+  "types": "./dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/lib/index.d.ts",
+        "default": "./dist/lib/index.mjs"
+      },
+      "require": {
+        "types": "./dist/lib/index.d.cts",
+        "default": "./dist/lib/index.cjs"
+      }
+    },
+    "./hooks": {
+      "import": {
+        "types": "./dist/lib/hooks.d.ts",
+        "default": "./dist/lib/hooks.mjs"
+      },
+      "require": {
+        "types": "./dist/lib/hooks.d.cts",
+        "default": "./dist/lib/hooks.cjs"
+      }
+    },
+    "./katex-arabic.css": "./dist/lib/katex-arabic.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/lib",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,28 +65,39 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run test && npm run build"
+    "build:lib": "node scripts/build-lib.mjs",
+    "build:types": "tsc -p tsconfig.lib.json && node -e \"const fs=require('fs');fs.copyFileSync('dist/lib/index.d.ts','dist/lib/index.d.cts');fs.copyFileSync('dist/lib/hooks.d.ts','dist/lib/hooks.d.cts');\"",
+    "build:all": "npm run build:lib && npm run build:types",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "prepublishOnly": "npm run check && npm run build:all"
   },
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {
-    "clsx": "2.1.1",
-    "katex": "^0.18.4",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "tailwind-merge": "3.4.0"
+  "peerDependencies": {
+    "katex": ">=0.16.0",
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.17",
+    "@types/katex": "^0.16.7",
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
+    "clsx": "2.1.1",
+    "katex": "^0.18.4",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "tailwind-merge": "3.4.0",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "7.3.2",
-    "vite-plugin-singlefile": "2.3.0",
     "vitest": "^4.1.10"
   }
 }
