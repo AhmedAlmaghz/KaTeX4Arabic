@@ -91,7 +91,7 @@ https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic
 https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.css
 ```
 
-> استبدل `@main` بفرعك الافتراضي (سيكون `master` في بعض المستودعات) أو بنسخة release مثل `@1.1.1`.
+> استبدل `@main` بفرعك الافتراضي (سيكون `master` في بعض المستودعات) أو بنسخة release مثل `@1.1.2`.
 > بعد النشر على npm يعمل أيضاً:
 > `https://cdn.jsdelivr.net/npm/katex4arabic/dist/cdn/katex-arabic.min.js` + ملف CSS بنفس المسار.
 
@@ -129,7 +129,7 @@ KaTeXArabic.render('\\int_0^1 x^2 dx', element);
 KaTeXArabic.toArabicNumerals('123');            // '١٢٣'
 KaTeXArabic.translateFunctions('sin');           // 'جا'
 KaTeXArabic.resolveOptions({});                  // الخيارات الافتراضية
-KaTeXArabic.VERSION;                             // '1.1.1'
+KaTeXArabic.VERSION;                             // '1.1.2'
 ```
 
 ---

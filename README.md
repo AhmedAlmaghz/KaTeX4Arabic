@@ -131,7 +131,7 @@ const KaTeXArabic = require('katex4arabic/bundle');
 const html = KaTeXArabic.renderToString('\\sin^2 x + \\cos^2 x = 1'); // ← افتراضياً: أرقام عربية + جا/جتا + RTL
 KaTeXArabic.render('\\int_0^1 x^2 dx', element);                       // (latex, element, options?)
 KaTeXArabic.toArabicNumerals('123');                                   // '١٢٣'
-KaTeXArabic.VERSION;                                                  // '1.1.1'
+KaTeXArabic.VERSION;                                                  // '1.1.2'
 ```
 
 > الدليل التفصيلي: [docs/INSTALL.md](docs/INSTALL.md)
