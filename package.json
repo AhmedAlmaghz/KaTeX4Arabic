@@ -1,6 +1,6 @@
 {
-  "name": "katex-arabic",
-  "version": "1.1.0",
+  "name": "katex4arabic",
+  "version": "1.1.1",
   "description": "Render LaTeX math with Arabic transforms: Arabic-Indic numerals, translated function/variable names, RTL mirroring, and full KaTeX compatibility.",
   "author": "Ahmed Almaghz",
   "license": "MIT",
@@ -26,6 +26,8 @@
   "main": "./dist/lib/index.cjs",
   "module": "./dist/lib/index.mjs",
   "types": "./dist/lib/index.d.ts",
+  "unpkg": "./dist/cdn/katex-arabic.min.js",
+  "jsdelivr": "./dist/cdn/katex-arabic.min.js",
   "exports": {
     ".": {
       "import": {
@@ -48,10 +50,23 @@
       }
     },
     "./katex-arabic.css": "./dist/lib/katex-arabic.css",
+    "./bundle": {
+      "import": {
+        "types": "./dist/lib/index.d.ts",
+        "default": "./dist/cdn/katex-arabic.min.mjs"
+      },
+      "require": {
+        "types": "./dist/lib/index.d.cts",
+        "default": "./dist/cdn/katex-arabic.min.cjs"
+      }
+    },
+    "./bundle.css": "./dist/cdn/katex-arabic.min.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist/lib",
+    "dist/cdn",
+    "docs",
     "LICENSE",
     "README.md"
   ],
@@ -67,7 +82,8 @@
     "test:watch": "vitest",
     "build:lib": "node scripts/build-lib.mjs",
     "build:types": "tsc -p tsconfig.lib.json && node -e \"const fs=require('fs');fs.copyFileSync('dist/lib/index.d.ts','dist/lib/index.d.cts');fs.copyFileSync('dist/lib/hooks.d.ts','dist/lib/hooks.d.cts');\"",
-    "build:all": "npm run build:lib && npm run build:types",
+    "build:cdn": "node scripts/build-cdn.mjs",
+    "build:all": "npm run build:lib && npm run build:types && npm run build:cdn",
     "check": "npm run typecheck && npm run test && npm run build",
     "prepublishOnly": "npm run check && npm run build:all"
   },

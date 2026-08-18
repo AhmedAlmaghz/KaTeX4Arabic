@@ -13,14 +13,17 @@
  * ════════════════════════════════════════════════════════════════
  */
 import { renderArabic, renderArabicToString, renderArabicWithMeta, renderArabicBatch, processLatex, validateLatex } from './render';
-import { clearRenderCache } from './rtlRenderer';
+import { clearRenderCache, resolveOptions, buildCssClasses, getArabicMacros } from './rtlRenderer';
+import { toArabicNumerals, fromArabicNumerals, formatArabicNumber, convertNumbersInText, isArabicDigit } from './arabicNumerals';
+import { translateFunctions, translateVariables, translateDifferentials, translateSpecialPatterns, translateAll } from './arabicFunctions';
+import { applyMirroredSymbols } from './arabicSymbols';
 export { DEFAULT_OPTIONS, resolveOptions, buildCssClasses, getArabicMacros, clearRenderCache, MAX_INPUT_LENGTH, } from './rtlRenderer';
 export type { ArabicKatexOptions, PartialArabicOptions, RenderResult } from './types';
 export { renderArabicToString, renderArabicWithMeta, renderArabic, renderArabicBatch, processLatex, validateLatex, } from './render';
 export { toArabicNumerals, fromArabicNumerals, formatArabicNumber, convertNumbersInText, isArabicDigit, } from './arabicNumerals';
 export { translateFunctions, translateVariables, translateDifferentials, translateSpecialPatterns, translateAll, FUNCTION_MAP, VARIABLE_MAP, GREEK_MAP, DIFFERENTIAL_PATTERNS, } from './arabicFunctions';
 export { applyMirroredSymbols, MIRRORED_SYMBOLS, COMPARISON_SYMBOLS, ARROW_SYMBOLS, BRACKET_SYMBOLS, ARABIC_MATH_UNICODE, SPECIAL_ARABIC_SYMBOLS, } from './arabicSymbols';
-export declare const VERSION = "1.0.0";
+export declare const VERSION = "1.1.1";
 declare const KaTeXArabic: {
     render: typeof renderArabic;
     renderToString: typeof renderArabicToString;
@@ -28,6 +31,20 @@ declare const KaTeXArabic: {
     renderBatch: typeof renderArabicBatch;
     process: typeof processLatex;
     validate: typeof validateLatex;
+    toArabicNumerals: typeof toArabicNumerals;
+    fromArabicNumerals: typeof fromArabicNumerals;
+    formatArabicNumber: typeof formatArabicNumber;
+    convertNumbersInText: typeof convertNumbersInText;
+    isArabicDigit: typeof isArabicDigit;
+    translateFunctions: typeof translateFunctions;
+    translateVariables: typeof translateVariables;
+    translateDifferentials: typeof translateDifferentials;
+    translateSpecialPatterns: typeof translateSpecialPatterns;
+    translateAll: typeof translateAll;
+    applyMirroredSymbols: typeof applyMirroredSymbols;
+    resolveOptions: typeof resolveOptions;
+    buildCssClasses: typeof buildCssClasses;
+    getArabicMacros: typeof getArabicMacros;
     clearCache: typeof clearRenderCache;
     DEFAULT_OPTIONS: import("./types").ArabicKatexOptions;
     VERSION: string;

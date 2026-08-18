@@ -15,7 +15,7 @@
 
 ```bash
 # تثبيت الحزمة مع KaTeX
-npm install katex-arabic katex
+npm install katex4arabic katex
 
 # إذا كنت تستخدم React وتريد الخطاطيف
 npm install react react-dom
@@ -37,18 +37,99 @@ pnpm add katex-arabic katex
 | المدخل | المحتوى |
 | --- | --- |
 | `katex-arabic` | الدوال الأساسية للعرض والمعالجة |
-| `katex-arabic/hooks` | خطاطيف React (اختياري) |
-| `katex-arabic/katex-arabic.css` | ملف الأنماط — **يجب استيراده مرة واحدة** |
+| `katex4arabic/hooks` | خطاطيف React (اختياري) |
+| `katex4arabic/katex-arabic.css` | ملف الأنماط — **يجب استيراده مرة واحدة** |
 
 ```ts
 // الدوال الأساسية
-import { renderArabicToString, renderArabic, processLatex } from 'katex-arabic';
+import { renderArabicToString, renderArabic, processLatex } from 'katex4arabic';
 
 // خطاطيف React (اختياري)
-import { useArabicKatex, useArabicKatexResult } from 'katex-arabic/hooks';
+import { useArabicKatex, useArabicKatexResult } from 'katex4arabic/hooks';
 
 // ملف الأنماط — استورده مرة واحدة في نقطة دخول تطبيقك
-import 'katex-arabic/katex-arabic.css';
+import 'katex4arabic/katex-arabic.css';
+```
+
+---
+
+## 2️⃣ أ) التثبيت عبر npm — بملف واحد فقط
+
+بعد التنصيب، يمكنك استيراد **كامل المكتبة من ملف JS واحد** (KaTeX مدمج داخله):
+
+```ts
+import KaTeXArabic from 'katex4arabic/bundle';  // ملف واحد (يشمل KaTeX)
+import 'katex4arabic/bundle.css';               // ملف CSS واحد
+
+const html = KaTeXArabic.renderToString('x^2 + y^2 = z^2');
+```
+
+أو عبر CommonJS:
+
+```ts
+const KaTeXArabic = require('katex4arabic/bundle');
+```
+
+> ملاحظة: `bundle` يحزم KaTeX + كل تحويلاتنا في ملف واحد مصغّر للراحة التامّة.
+> أما مدخل `katex4arabic` الأساسي فمصمّم للمشاريع الاحترافية (KaTeX كاعتماد نظير، بدون تكرار).
+
+---
+
+## 2️⃣ ب) التثبيت عبر CDN (ملفان فقط — بدون أي إعداد)
+
+تُبنى الحزمة أيضاً كملفين جاهزين للتحميل المباشر عبر أي CDN:
+
+| الملف | المحتوى |
+| --- | --- |
+| `katex-arabic.min.js` | ملف JS واحد (IIFE) يشمل **KaTeX بداخله** وكل التحويلات العربية |
+| `katex-arabic.min.css` | ملف CSS واحد يضم `katex.min.css` + أنماط تحسين عرض الرموز العربية |
+
+**الرابط من مستودع GitHub** (يعمل مباشرة قبل النشر):
+
+```
+https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.js
+https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.css
+```
+
+> استبدل `@main` بفرعك الافتراضي (سيكون `master` في بعض المستودعات) أو بنسخة release مثل `@1.1.1`.
+> بعد النشر على npm يعمل أيضاً:
+> `https://cdn.jsdelivr.net/npm/katex4arabic/dist/cdn/katex-arabic.min.js` + ملف CSS بنفس المسار.
+
+**مثال HTML كامل — لا يحتاج شيئاً سواهما:**
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <!-- ملف JS واحد يشمل KaTeX -->
+  <script defer src="https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.js"></script>
+  <!-- ملف CSS واحد -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.css">
+</head>
+<body>
+  <div id="eq">x^2 + y^2 = z^2</div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('eq');
+      // العرض الافتراضي جاهز — لا حاجة لتمرير أي خيارات
+      KaTeXArabic.render(el.textContent.trim(), el);
+    });
+  </script>
+</body>
+</html>
+```
+
+المتغير العمومي `window.KaTeXArabic` يوفّر نفس واجهة KaTeX تماماً:
+
+```js
+const html = KaTeXArabic.renderToString('\\sin^2 x + \\cos^2 x = 1');
+KaTeXArabic.render('\\int_0^1 x^2 dx', element);
+KaTeXArabic.toArabicNumerals('123');            // '١٢٣'
+KaTeXArabic.translateFunctions('sin');           // 'جا'
+KaTeXArabic.resolveOptions({});                  // الخيارات الافتراضية
+KaTeXArabic.VERSION;                             // '1.1.1'
 ```
 
 ---
@@ -58,8 +139,8 @@ import 'katex-arabic/katex-arabic.css';
 ### أ) JavaScript عادي (Vanilla JS)
 
 ```ts
-import { renderArabicToString } from 'katex-arabic';
-import 'katex-arabic/katex-arabic.css';
+import { renderArabicToString } from 'katex4arabic';
+import 'katex4arabic/katex-arabic.css';
 
 const html = renderArabicToString('\\sin^2(x) + \\cos^2(x) = 1', {
   numerals: 'arabic',        // أرقام عربية-هندية ٠١٢…٩
@@ -75,20 +156,23 @@ document.getElementById('equation').innerHTML = html;
 ### ب) العرض داخل عنصر DOM مباشرة
 
 ```ts
-import { renderArabic } from 'katex-arabic';
+import { renderArabic } from 'katex4arabic';
 
 const element = document.getElementById('math');
-renderArabic(element, '\\int_0^1 x^2 \\, dx', {
+// التوقيع: renderArabic(latex, element, options)
+renderArabic('\\int_0^1 x^2 \\, dx', element, {
   fullArabicMode: true,       // تفعيل كل التحويلات العربية دفعة واحدة
   displayMode: true,         // عرض ككتلة (block) وليس سطريا
 });
 ```
 
+> ملاحظة: ترتيب الوسائط في `renderArabic` هو `(latex, element, options)` — النص أولاً ثم العنصر ثم الخيارات.
+
 ### ج) مع React (الخطاطيف)
 
 ```tsx
-import { useArabicKatex } from 'katex-arabic/hooks';
-import 'katex-arabic/katex-arabic.css';
+import { useArabicKatex } from 'katex4arabic/hooks';
+import 'katex4arabic/katex-arabic.css';
 
 function Equation({ latex }: { latex: string }) {
   const html = useArabicKatex(latex, { numerals: 'arabic' });
@@ -99,7 +183,7 @@ function Equation({ latex }: { latex: string }) {
 وللحصول على نتيجة مفصّلة مع رسالة الخطأ (مفيد للمحررات):
 
 ```tsx
-import { useArabicKatexResult } from 'katex-arabic/hooks';
+import { useArabicKatexResult } from 'katex4arabic/hooks';
 
 function Editor({ latex }: { latex: string }) {
   const { html, ok, error, processedLatex } = useArabicKatexResult(latex);
@@ -112,7 +196,7 @@ function Editor({ latex }: { latex: string }) {
 ولعرض قائمة معادلات دفعة واحدة (الأكثر كفاءة):
 
 ```tsx
-import { useArabicKatexBatch } from 'katex-arabic/hooks';
+import { useArabicKatexBatch } from 'katex4arabic/hooks';
 
 function Gallery({ items }: { items: string[] }) {
   const results = useArabicKatexBatch(items, { fullArabicMode: true });
@@ -201,14 +285,14 @@ import {
   processLatex,          // المعالجة دون عرض
   clearRenderCache,      // مسح ذاكرة التخزين المؤقت
   VERSION,               // رقم إصدار المكتبة
-} from 'katex-arabic';
+} from 'katex4arabic';
 ```
 
 ---
 
 ## 6️⃣ ملاحظات مهمة
 
-1. **ملف CSS إلزامي**: بدون استيراد `katex-arabic/katex-arabic.css` ستظهر المعادلات بدون تنسيق صحيح (محاذاة، خطوط، عكس الرموز).
+1. **ملف CSS إلزامي**: بدون استيراد `katex4arabic/katex-arabic.css` ستظهر المعادلات بدون تنسيق صحيح (محاذاة، خطوط، عكس الرموز).
 2. **الخطوط العربية**: يفضّل تحميل خط عربي في صفحتك (مثل Amiri أو Noto Naskh Arabic) للحصول على أفضل تشكيل للحروف.
 3. **الأداء**: الدوال تستخدم ذاكرة تخزين مؤقت (LRU cache) داخليا، فلا تقلق من استدعاء نفس المعادلة مرارا.
 4. **الخطأ الآمن**: عند وجود خطأ في LaTeX، تعرض رسالة خطأ منسّقة بدلا من توقف التطبيق (ما لم تفعّل `throwOnError: true`).
@@ -227,7 +311,7 @@ import {
 <body>
   <div id="math"></div>
   <script type="module">
-    import { renderArabic } from 'katex-arabic';
+    import { renderArabic } from 'katex4arabic';
     renderArabic(document.getElementById('math'),
       '\\lim_{x \\to \\infty} \\frac{\\sin(x)}{x} = 0',
       { fullArabicMode: true, displayMode: true });

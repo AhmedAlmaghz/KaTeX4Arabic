@@ -51,7 +51,7 @@ npm run check      # فحص شامل: typecheck + tests + build
 > 📖 **دليل التنصيب والاستخدام الكامل**: [docs/INSTALL.md](docs/INSTALL.md)
 
 ```bash
-npm install katex-arabic
+npm install katex4arabic
 ```
 
 الحزمة تتطلب `katex` كاعتماد نظير (peer dependency)، و`react` اختيارياً
@@ -65,14 +65,76 @@ npm install katex
 
 ```ts
 // الدوال الأساسية
-import { renderArabicToString, renderArabic, processLatex } from 'katex-arabic';
+import { renderArabicToString, renderArabic, processLatex } from 'katex4arabic';
 
 // خطاطيف React (اختياري)
-import { useArabicKatex, useArabicKatexResult } from 'katex-arabic/hooks';
+import { useArabicKatex, useArabicKatexResult } from 'katex4arabic/hooks';
 
 // ملف الأنماط — يجب استيراده مرة واحدة في تطبيقك
-import 'katex-arabic/katex-arabic.css';
+import 'katex4arabic/katex-arabic.css';
 ```
+
+---
+
+## 📦 كحزمة npm — استيراد وتحميل بملف واحد فقط
+
+بعد `npm install katex4arabic katex`، يمكن استيراد **كامل المكتبة من ملف​​ JS واحد** (KaTeX مدمج داخله — صفر إعداد):
+
+```ts
+import KaTeXArabic from 'katex4arabic/bundle';  // ملف واحد (يشمل KaTeX)
+import 'katex4arabic/bundle.css';               // ملف CSS واحد
+
+const html = KaTeXArabic.renderToString('x^2 + y^2 = z^2');
+```
+
+أو في بيئة CommonJS:
+
+```ts
+const KaTeXArabic = require('katex4arabic/bundle');
+```
+
+---
+
+## 🚀 الاستخدام عبر CDN (ملفان فقط — صفر إعداد)
+
+تُنشر الحزمة أيضاً كملفين جاهزين للتحميل المباشر — **KaTeX مدمج داخل ملف JS واحد** وغير مطلوب تحميله منفصلاً:
+
+**الرابط من مستودع GitHub** (يعمل مباشرة، قبل النشر على npm):
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <script defer src="https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/AhmedAlmaghz/katex4arabic@main/dist/cdn/katex-arabic.min.css">
+</head>
+<body>
+  <div id="eq">x^2 + y^2 = z^2</div>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      KaTeXArabic.render(document.getElementById('eq').textContent.trim(),
+                         document.getElementById('eq'));
+    });
+  </script>
+</body>
+</html>
+```
+
+> بعد النشر على npm يعمل الرابط الأقصر أيضاً:
+> `https://cdn.jsdelivr.net/npm/katex4arabic/dist/cdn/katex-arabic.min.js` —
+> مع ملف CSS بنفس المسار، ويعمل `https://cdn.jsdelivr.net/npm/katex4arabic` على نقطة دخول jsDelivr مباشرة.
+
+المتغير العمومي `window.KaTeXArabic` بنفس واجهة `katex`:
+
+```js
+const html = KaTeXArabic.renderToString('\\sin^2 x + \\cos^2 x = 1'); // ← افتراضياً: أرقام عربية + جا/جتا + RTL
+KaTeXArabic.render('\\int_0^1 x^2 dx', element);                       // (latex, element, options?)
+KaTeXArabic.toArabicNumerals('123');                                   // '١٢٣'
+KaTeXArabic.VERSION;                                                  // '1.1.1'
+```
+
+> الدليل التفصيلي: [docs/INSTALL.md](docs/INSTALL.md)
 
 ---
 
@@ -115,8 +177,8 @@ import 'katex-arabic/katex-arabic.css';
 ### Vanilla JS
 
 ```ts
-import { renderArabicToString } from 'katex-arabic';
-import 'katex-arabic/katex-arabic.css';
+import { renderArabicToString } from 'katex4arabic';
+import 'katex4arabic/katex-arabic.css';
 
 const html = renderArabicToString('\\sin^2(x) + \\cos^2(x) = 1', {
   numerals: 'arabic',
@@ -129,7 +191,7 @@ document.getElementById('eq')!.innerHTML = html;
 ### معالجة LaTeX فقط (بدون عرض)
 
 ```ts
-import { processLatex, validateLatex } from 'katex-arabic';
+import { processLatex, validateLatex } from 'katex4arabic';
 
 const processed = processLatex('\\sin(x) + dx');
 // → "\\operatorname{جا}(\\text{س}) + \\text{د}\\text{س}"
@@ -145,7 +207,7 @@ if (validateLatex('\\frac{1}{2} + x') === null) {
 وذاكرة التخزين المؤقت مشتركة):
 
 ```ts
-import { renderArabicBatch } from 'katex-arabic';
+import { renderArabicBatch } from 'katex4arabic';
 
 const results = renderArabicBatch(
   ['x = 1', { latex: 'y = 2', options: { numerals: 'latin' } }],
@@ -161,7 +223,7 @@ const results = renderArabicBatch(
 (مثلاً عند تغيّر الخيارات جذرياً أو في الاختبارات):
 
 ```ts
-import { clearRenderCache } from 'katex-arabic';
+import { clearRenderCache } from 'katex4arabic';
 clearRenderCache();
 ```
 
@@ -185,7 +247,7 @@ import { MathBlock, MathInline } from './components/MathEquation';
 ### خطاطيف React
 
 ```tsx
-import { useArabicKatex, useArabicKatexResult } from 'katex-arabic/hooks';
+import { useArabicKatex, useArabicKatexResult } from 'katex4arabic/hooks';
 
 const html = useArabicKatex('x^2 + y^2', { numerals: 'arabic' });
 const { ok, error } = useArabicKatexResult(latex, options);

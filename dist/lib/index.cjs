@@ -1,14 +1,34 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const render = require("./render.cjs");
-const VERSION = "1.0.0";
+const VERSION = "1.1.1";
 const KaTeXArabic = {
+  // ─── Rendering ───────────────────────────────────────────
   render: render.renderArabic,
   renderToString: render.renderArabicToString,
   renderWithMeta: render.renderArabicWithMeta,
   renderBatch: render.renderArabicBatch,
+  // ─── Text processing ─────────────────────────────────────
   process: render.processLatex,
   validate: render.validateLatex,
+  // ─── Numerals ────────────────────────────────────────────
+  toArabicNumerals: render.toArabicNumerals,
+  fromArabicNumerals: render.fromArabicNumerals,
+  formatArabicNumber: render.formatArabicNumber,
+  convertNumbersInText: render.convertNumbersInText,
+  isArabicDigit: render.isArabicDigit,
+  // ─── Translation ─────────────────────────────────────────
+  translateFunctions: render.translateFunctions,
+  translateVariables: render.translateVariables,
+  translateDifferentials: render.translateDifferentials,
+  translateSpecialPatterns: render.translateSpecialPatterns,
+  translateAll: render.translateAll,
+  // ─── Mirroring ───────────────────────────────────────────
+  applyMirroredSymbols: render.applyMirroredSymbols,
+  // ─── Options / cache ─────────────────────────────────────
+  resolveOptions: render.resolveOptions,
+  buildCssClasses: render.buildCssClasses,
+  getArabicMacros: render.getArabicMacros,
   clearCache: render.clearRenderCache,
   DEFAULT_OPTIONS: render.DEFAULT_OPTIONS,
   VERSION

@@ -21,7 +21,28 @@ import {
   processLatex,
   validateLatex,
 } from './render';
-import { DEFAULT_OPTIONS, clearRenderCache } from './rtlRenderer';
+import {
+  DEFAULT_OPTIONS,
+  clearRenderCache,
+  resolveOptions,
+  buildCssClasses,
+  getArabicMacros,
+} from './rtlRenderer';
+import {
+  toArabicNumerals,
+  fromArabicNumerals,
+  formatArabicNumber,
+  convertNumbersInText,
+  isArabicDigit,
+} from './arabicNumerals';
+import {
+  translateFunctions,
+  translateVariables,
+  translateDifferentials,
+  translateSpecialPatterns,
+  translateAll,
+} from './arabicFunctions';
+import { applyMirroredSymbols } from './arabicSymbols';
 
 // ─── Re-exports: configuration ─────────────────────────────
 export {
@@ -78,19 +99,51 @@ export {
 } from './arabicSymbols';
 
 // ─── Version constant ──────────────────────────────────────
-export const VERSION = '1.0.0';
+// Kept in sync with package.json by scripts/build-cdn.mjs
+// (the CDN build fails if these ever drift apart).
+export const VERSION = '1.1.1';
 
 // ═══════════════════════════════════════════════════════════════
-//  Default export — the legacy "KaTeXArabic" object
+//  Default export — the "KaTeXArabic" namespace
+//
+//  This object is what a CDN <script> tag exposes as `window.KaTeXArabic`,
+//  and what `import KaTeXArabic from 'katex-arabic'` returns. It mirrors
+//  `katex`'s own API shape (render / renderToString / …) plus every
+//  Arabic helper, so it works as a full drop-in namespace.
 // ═══════════════════════════════════════════════════════════════
 
 const KaTeXArabic = {
+  // ─── Rendering ───────────────────────────────────────────
   render: renderArabic,
   renderToString: renderArabicToString,
   renderWithMeta: renderArabicWithMeta,
   renderBatch: renderArabicBatch,
+
+  // ─── Text processing ─────────────────────────────────────
   process: processLatex,
   validate: validateLatex,
+
+  // ─── Numerals ────────────────────────────────────────────
+  toArabicNumerals,
+  fromArabicNumerals,
+  formatArabicNumber,
+  convertNumbersInText,
+  isArabicDigit,
+
+  // ─── Translation ─────────────────────────────────────────
+  translateFunctions,
+  translateVariables,
+  translateDifferentials,
+  translateSpecialPatterns,
+  translateAll,
+
+  // ─── Mirroring ───────────────────────────────────────────
+  applyMirroredSymbols,
+
+  // ─── Options / cache ─────────────────────────────────────
+  resolveOptions,
+  buildCssClasses,
+  getArabicMacros,
   clearCache: clearRenderCache,
   DEFAULT_OPTIONS,
   VERSION,

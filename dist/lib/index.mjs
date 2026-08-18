@@ -1,52 +1,72 @@
-import { D as DEFAULT_OPTIONS, c as clearRenderCache, v as validateLatex, b as processLatex, a as renderArabicBatch, r as renderArabicWithMeta, d as renderArabicToString, e as renderArabic } from "./render.mjs";
-import { A, f, B, C, g, F, G, M, h, S, V, i, j, k, l, m, n, o, q, t, s, u, w, x, y } from "./render.mjs";
-const VERSION = "1.0.0";
+import { D as DEFAULT_OPTIONS, c as clearRenderCache, g as getArabicMacros, b as buildCssClasses, d as resolveOptions, e as applyMirroredSymbols, t as translateAll, f as translateSpecialPatterns, h as translateDifferentials, i as translateVariables, j as translateFunctions, k as isArabicDigit, l as convertNumbersInText, m as formatArabicNumber, n as fromArabicNumerals, o as toArabicNumerals, v as validateLatex, q as processLatex, a as renderArabicBatch, r as renderArabicWithMeta, s as renderArabicToString, u as renderArabic } from "./render.mjs";
+import { A, w, B, C, x, F, G, M, y, S, V } from "./render.mjs";
+const VERSION = "1.1.1";
 const KaTeXArabic = {
+  // ─── Rendering ───────────────────────────────────────────
   render: renderArabic,
   renderToString: renderArabicToString,
   renderWithMeta: renderArabicWithMeta,
   renderBatch: renderArabicBatch,
+  // ─── Text processing ─────────────────────────────────────
   process: processLatex,
   validate: validateLatex,
+  // ─── Numerals ────────────────────────────────────────────
+  toArabicNumerals,
+  fromArabicNumerals,
+  formatArabicNumber,
+  convertNumbersInText,
+  isArabicDigit,
+  // ─── Translation ─────────────────────────────────────────
+  translateFunctions,
+  translateVariables,
+  translateDifferentials,
+  translateSpecialPatterns,
+  translateAll,
+  // ─── Mirroring ───────────────────────────────────────────
+  applyMirroredSymbols,
+  // ─── Options / cache ─────────────────────────────────────
+  resolveOptions,
+  buildCssClasses,
+  getArabicMacros,
   clearCache: clearRenderCache,
   DEFAULT_OPTIONS,
   VERSION
 };
 export {
   A as ARABIC_MATH_UNICODE,
-  f as ARROW_SYMBOLS,
+  w as ARROW_SYMBOLS,
   B as BRACKET_SYMBOLS,
   C as COMPARISON_SYMBOLS,
   DEFAULT_OPTIONS,
-  g as DIFFERENTIAL_PATTERNS,
+  x as DIFFERENTIAL_PATTERNS,
   F as FUNCTION_MAP,
   G as GREEK_MAP,
   M as MAX_INPUT_LENGTH,
-  h as MIRRORED_SYMBOLS,
+  y as MIRRORED_SYMBOLS,
   S as SPECIAL_ARABIC_SYMBOLS,
   V as VARIABLE_MAP,
   VERSION,
-  i as applyMirroredSymbols,
-  j as buildCssClasses,
+  applyMirroredSymbols,
+  buildCssClasses,
   clearRenderCache,
-  k as convertNumbersInText,
+  convertNumbersInText,
   KaTeXArabic as default,
-  l as formatArabicNumber,
-  m as fromArabicNumerals,
-  n as getArabicMacros,
-  o as isArabicDigit,
+  formatArabicNumber,
+  fromArabicNumerals,
+  getArabicMacros,
+  isArabicDigit,
   processLatex,
   renderArabic,
   renderArabicBatch,
   renderArabicToString,
   renderArabicWithMeta,
-  q as resolveOptions,
-  t as toArabicNumerals,
-  s as translateAll,
-  u as translateDifferentials,
-  w as translateFunctions,
-  x as translateSpecialPatterns,
-  y as translateVariables,
+  resolveOptions,
+  toArabicNumerals,
+  translateAll,
+  translateDifferentials,
+  translateFunctions,
+  translateSpecialPatterns,
+  translateVariables,
   validateLatex
 };
 //# sourceMappingURL=index.mjs.map

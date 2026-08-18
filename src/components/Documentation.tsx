@@ -161,8 +161,8 @@ export const Documentation: FC<DocumentationProps> = ({ options }) => {
 
         <h3>الاستخدام المباشر (Vanilla JS):</h3>
         <pre className="doc-code" dir="ltr">
-{`import { renderArabicToString } from 'katex-arabic';
-import 'katex-arabic/katex-arabic.css';
+{`import { renderArabicToString } from 'katex4arabic';
+import 'katex4arabic/katex-arabic.css';
 
 const html = renderArabicToString('\\\\sin^2(x) + \\\\cos^2(x) = 1', {
   numerals: 'arabic',
@@ -174,8 +174,8 @@ document.getElementById('eq').innerHTML = html;`}
 
         <h3>الاستخدام مع React:</h3>
         <pre className="doc-code" dir="ltr">
-{`import { useArabicKatex } from 'katex-arabic/hooks';
-import 'katex-arabic/katex-arabic.css';
+{`import { useArabicKatex } from 'katex4arabic/hooks';
+import 'katex4arabic/katex-arabic.css';
 
 function Equation({ latex }) {
   const html = useArabicKatex(latex, { numerals: 'arabic' });
@@ -185,7 +185,7 @@ function Equation({ latex }) {
 
         <h3>معالجة LaTeX فقط (بدون عرض):</h3>
         <pre className="doc-code" dir="ltr">
-{`import { processLatex } from 'katex-arabic';
+{`import { processLatex } from 'katex4arabic';
 
 const processed = processLatex('\\\\sin(x) + dx');
 // → "\\\\operatorname{جا}(x) + \\\\text{د}\\\\text{س}"`}
