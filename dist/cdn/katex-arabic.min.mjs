@@ -11842,7 +11842,7 @@ function $i(r, e) {
   const t = Z0(e), a = r.querySelector(".katex");
   a && (a.setAttribute("dir", t.direction), a.style.fontFamily = `'${t.fontFamily}', 'KaTeX_Main', serif`, a.style.direction = t.direction);
 }
-const ji = "1.1.1", Wi = {
+const ji = "1.1.2", Wi = {
   // ─── Rendering ───────────────────────────────────────────
   render: Pi,
   renderToString: Ka,

@@ -23,7 +23,7 @@ export { renderArabicToString, renderArabicWithMeta, renderArabic, renderArabicB
 export { toArabicNumerals, fromArabicNumerals, formatArabicNumber, convertNumbersInText, isArabicDigit, } from './arabicNumerals';
 export { translateFunctions, translateVariables, translateDifferentials, translateSpecialPatterns, translateAll, FUNCTION_MAP, VARIABLE_MAP, GREEK_MAP, DIFFERENTIAL_PATTERNS, } from './arabicFunctions';
 export { applyMirroredSymbols, MIRRORED_SYMBOLS, COMPARISON_SYMBOLS, ARROW_SYMBOLS, BRACKET_SYMBOLS, ARABIC_MATH_UNICODE, SPECIAL_ARABIC_SYMBOLS, } from './arabicSymbols';
-export declare const VERSION = "1.1.1";
+export declare const VERSION = "1.1.2";
 declare const KaTeXArabic: {
     render: typeof renderArabic;
     renderToString: typeof renderArabicToString;
