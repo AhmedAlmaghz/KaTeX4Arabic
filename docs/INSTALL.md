@@ -1,0 +1,252 @@
+# 📦 تعليمات التنصيب والاستخدام — حزمة `katex-arabic`
+
+> دليل شامل لتثبيت واستخدام مكتبة **KaTeX Arabic** لعرض المعادلات الرياضية بالأسلوب العربي.
+
+---
+
+## 1️⃣ التنصيب
+
+### المتطلبات
+- **Node.js ≥ 18**
+- **KaTeX ≥ 0.16** (اعتماد نظير إلزامي)
+- **React ≥ 18** (اختياري — فقط إذا أردت استخدام الخطاطيف)
+
+### أوامر التنصيب
+
+```bash
+# تثبيت الحزمة مع KaTeX
+npm install katex-arabic katex
+
+# إذا كنت تستخدم React وتريد الخطاطيف
+npm install react react-dom
+```
+
+أو باستخدام yarn / pnpm:
+
+```bash
+yarn add katex-arabic katex
+pnpm add katex-arabic katex
+```
+
+---
+
+## 2️⃣ الاستيراد
+
+الحزمة توفر ثلاثة مداخل (exports):
+
+| المدخل | المحتوى |
+| --- | --- |
+| `katex-arabic` | الدوال الأساسية للعرض والمعالجة |
+| `katex-arabic/hooks` | خطاطيف React (اختياري) |
+| `katex-arabic/katex-arabic.css` | ملف الأنماط — **يجب استيراده مرة واحدة** |
+
+```ts
+// الدوال الأساسية
+import { renderArabicToString, renderArabic, processLatex } from 'katex-arabic';
+
+// خطاطيف React (اختياري)
+import { useArabicKatex, useArabicKatexResult } from 'katex-arabic/hooks';
+
+// ملف الأنماط — استورده مرة واحدة في نقطة دخول تطبيقك
+import 'katex-arabic/katex-arabic.css';
+```
+
+---
+
+## 3️⃣ الاستخدام
+
+### أ) JavaScript عادي (Vanilla JS)
+
+```ts
+import { renderArabicToString } from 'katex-arabic';
+import 'katex-arabic/katex-arabic.css';
+
+const html = renderArabicToString('\\sin^2(x) + \\cos^2(x) = 1', {
+  numerals: 'arabic',        // أرقام عربية-هندية ٠١٢…٩
+  translateFuncs: true,      // sin → جا
+  translateVars: true,       // x → س
+  direction: 'rtl',          // اتجاه من اليمين لليسار
+});
+
+document.getElementById('equation').innerHTML = html;
+// النتيجة: جا²(س) + جتا²(س) = ١
+```
+
+### ب) العرض داخل عنصر DOM مباشرة
+
+```ts
+import { renderArabic } from 'katex-arabic';
+
+const element = document.getElementById('math');
+renderArabic(element, '\\int_0^1 x^2 \\, dx', {
+  fullArabicMode: true,       // تفعيل كل التحويلات العربية دفعة واحدة
+  displayMode: true,         // عرض ككتلة (block) وليس سطريا
+});
+```
+
+### ج) مع React (الخطاطيف)
+
+```tsx
+import { useArabicKatex } from 'katex-arabic/hooks';
+import 'katex-arabic/katex-arabic.css';
+
+function Equation({ latex }: { latex: string }) {
+  const html = useArabicKatex(latex, { numerals: 'arabic' });
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+}
+```
+
+وللحصول على نتيجة مفصّلة مع رسالة الخطأ (مفيد للمحررات):
+
+```tsx
+import { useArabicKatexResult } from 'katex-arabic/hooks';
+
+function Editor({ latex }: { latex: string }) {
+  const { html, ok, error, processedLatex } = useArabicKatexResult(latex);
+
+  if (!ok) return <p className="error">{error}</p>;
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+}
+```
+
+ولعرض قائمة معادلات دفعة واحدة (الأكثر كفاءة):
+
+```tsx
+import { useArabicKatexBatch } from 'katex-arabic/hooks';
+
+function Gallery({ items }: { items: string[] }) {
+  const results = useArabicKatexBatch(items, { fullArabicMode: true });
+  return (
+    <ul>
+      {results.map((r, i) => (
+        <li key={i} dangerouslySetInnerHTML={{ __html: r.html }} />
+      ))}
+    </ul>
+  );
+}
+```
+
+---
+
+## 4️⃣ الخيارات المتاحة (`options`)
+
+يمكن تمرير أي مجموعة جزئية من الخيارات:
+
+```ts
+renderArabicToString(latex, {
+  // ─── الأرقام ───
+  numerals: 'arabic',        // 'arabic' (٠-٩) | 'extended' (۰-۹) | 'latin'
+  formatNumbers: true,       // استخدام الفواصل العربية ٬ و ٫
+
+  // ─── الترجمة ───
+  translateFuncs: true,      // sin→جا، cos→جتا، lim→نها، log→لغ
+  translateVars: true,       // x→س، y→ص، e→هـ
+  translateDiffs: true,      // dx→د س
+
+  // ─── عكس الرموز ───
+  mirrorSymbols: true,       // عكس رموز المقارنة < > ≤ ≥
+  mirrorBigOperators: true,  // عكس ∫ Σ ∏
+  mirrorSqrt: true,          // عكس الجذر (الشرطة يمينا)
+  mirrorBrackets: true,      // عكس الأقواس
+
+  // ─── العرض ───
+  direction: 'rtl',          // 'rtl' | 'ltr'
+  displayMode: false,        // true = كتلة، false = سطري
+  fullArabicMode: true,      // تفعيل كل التحويلات معا
+  operatorScale: 1.08,       // تكبير بصري لأسماء الدوال العربية
+
+  // ─── متقدم ───
+  throwOnError: false,       // false = عرض رسالة خطأ بدل رمي استثناء
+  macros: {},                // ماكروهات KaTeX إضافية
+});
+```
+
+### جدول الخيارات الكامل
+
+| الخيار | النوع | الافتراضي | الوصف |
+| --- | --- | --- | --- |
+| `numerals` | `arabic \| extended \| latin` | `arabic` | نظام الأرقام المعروض |
+| `formatNumbers` | `boolean` | `true` | فواصل عربية `٬ ٫` في الأعداد |
+| `translateFuncs` | `boolean` | `true` | ترجمة أسماء الدوال |
+| `translateVars` | `boolean` | `true` | ترجمة المتغيرات اللاتينية |
+| `translateDiffs` | `boolean` | `true` | ترجمة التفاضلات `dx → د س` |
+| `mirrorSymbols` | `boolean` | `true` | عكس رموز المقارنة والأسهم |
+| `mirrorBigOperators` | `boolean` | `true` | عكس `∫ Σ ∏` بصريا |
+| `mirrorSqrt` | `boolean` | `true` | عكس رمز الجذر `√` |
+| `mirrorBrackets` | `boolean` | `true` | عكس الأقواس الزاوية والكبيرة |
+| `direction` | `rtl \| ltr` | `rtl` | اتجاه المعادلة |
+| `fullArabicMode` | `boolean` | `true` | قراءة RTL للمعادلة كاملة |
+| `operatorScale` | `number` | `1.05` | حجم العوامل العربية (0.9–1.25) |
+| `fontFamily` | `string` | `Amiri` | خط النصوص العربية |
+| `displayMode` | `boolean` | `false` | وضع العرض (block) مقابل السطري |
+| `throwOnError` | `boolean` | `false` | إلقاء خطأ بدل العرض الودّي |
+| `customFunctionMap` | `Record` | `{}` | تجاوز ترجمات الدوال |
+| `customVariableMap` | `Record` | `{}` | تجاوز ترجمات المتغيرات |
+| `macros` | `Record` | `{}` | ماكرو KaTeX إضافية |
+| `minRuleThickness` | `number` | `0.04` | سماكة خطوط الكسور |
+
+---
+
+## 5️⃣ دوال مساعدة إضافية
+
+```ts
+import {
+  toArabicNumerals,      // "123" → "١٢٣"
+  fromArabicNumerals,    // "١٢٣" → "123"
+  formatArabicNumber,    // تنسيق رقم بالفواصل العربية
+  convertNumbersInText,  // تحويل الأرقام داخل نص
+  translateFunctions,    // ترجمة أسماء الدوال فقط
+  translateAll,          // كل الترجمات
+  validateLatex,         // التحقق من صحة LaTeX
+  processLatex,          // المعالجة دون عرض
+  clearRenderCache,      // مسح ذاكرة التخزين المؤقت
+  VERSION,               // رقم إصدار المكتبة
+} from 'katex-arabic';
+```
+
+---
+
+## 6️⃣ ملاحظات مهمة
+
+1. **ملف CSS إلزامي**: بدون استيراد `katex-arabic/katex-arabic.css` ستظهر المعادلات بدون تنسيق صحيح (محاذاة، خطوط، عكس الرموز).
+2. **الخطوط العربية**: يفضّل تحميل خط عربي في صفحتك (مثل Amiri أو Noto Naskh Arabic) للحصول على أفضل تشكيل للحروف.
+3. **الأداء**: الدوال تستخدم ذاكرة تخزين مؤقت (LRU cache) داخليا، فلا تقلق من استدعاء نفس المعادلة مرارا.
+4. **الخطأ الآمن**: عند وجود خطأ في LaTeX، تعرض رسالة خطأ منسّقة بدلا من توقف التطبيق (ما لم تفعّل `throwOnError: true`).
+
+---
+
+## 7️⃣ مثال كامل سريع
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css">
+  <style>/* استورد katex-arabic.css هنا عبر أداة البناء */</style>
+</head>
+<body>
+  <div id="math"></div>
+  <script type="module">
+    import { renderArabic } from 'katex-arabic';
+    renderArabic(document.getElementById('math'),
+      '\\lim_{x \\to \\infty} \\frac{\\sin(x)}{x} = 0',
+      { fullArabicMode: true, displayMode: true });
+  </script>
+</body>
+</html>
+```
+
+---
+
+## 🔗 روابط ذات صلة
+
+- [README الرئيسي](../README.md)
+- [موقع KaTeX الرسمي](https://katex.org)
+- [مستودع المشروع](https://github.com/ahmedalmaghz/KaTeX4Arabic)
+
+---
+
+## 📜 الترخيص
+
+مفتوح المصدر، مبنية على [KaTeX](https://katex.org) (MIT).
+بواسطة [Ahmed Almaghz](https://github.com/AhmedAlmaghz/KaTeX4Arabic) - 2026

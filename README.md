@@ -48,6 +48,8 @@ npm run check      # فحص شامل: typecheck + tests + build
 
 ## 📦 التثبيت كحزمة npm
 
+> 📖 **دليل التنصيب والاستخدام الكامل**: [docs/INSTALL.md](docs/INSTALL.md)
+
 ```bash
 npm install katex-arabic
 ```
