@@ -1,6 +1,6 @@
 {
   "name": "katex4arabic",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Render LaTeX math with Arabic transforms: Arabic-Indic numerals, translated function/variable names, RTL mirroring, and full KaTeX compatibility.",
   "author": "Ahmed Almaghz",
   "license": "MIT",
@@ -9,13 +9,14 @@
     "type": "git",
     "url": "https://github.com/ahmedalmaghz/KaTeX4Arabic.git"
   },
-  "homepage": "https://github.com/ahmedalmaghz/KaTeX4Arabic#readme",
+  "homepage": "https://KaTeX4Arabic.vercel.app",
   "bugs": {
     "url": "https://github.com/ahmedalmaghz/KaTeX4Arabic/issues"
   },
   "keywords": [
     "katex",
     "arabic",
+    "arabic-math",
     "math",
     "latex",
     "rtl",
