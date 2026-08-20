@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const render = require("./render.cjs");
-const VERSION = "1.1.2";
+const VERSION = "1.1.3";
 const KaTeXArabic = {
   // ─── Rendering ───────────────────────────────────────────
   render: render.renderArabic,

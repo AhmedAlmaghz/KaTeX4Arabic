@@ -1,6 +1,6 @@
 import { D as DEFAULT_OPTIONS, c as clearRenderCache, g as getArabicMacros, b as buildCssClasses, d as resolveOptions, e as applyMirroredSymbols, t as translateAll, f as translateSpecialPatterns, h as translateDifferentials, i as translateVariables, j as translateFunctions, k as isArabicDigit, l as convertNumbersInText, m as formatArabicNumber, n as fromArabicNumerals, o as toArabicNumerals, v as validateLatex, q as processLatex, a as renderArabicBatch, r as renderArabicWithMeta, s as renderArabicToString, u as renderArabic } from "./render.mjs";
 import { A, w, B, C, x, F, G, M, y, S, V } from "./render.mjs";
-const VERSION = "1.1.2";
+const VERSION = "1.1.3";
 const KaTeXArabic = {
   // ─── Rendering ───────────────────────────────────────────
   render: renderArabic,

@@ -41,9 +41,34 @@ function run(command, env = {}) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 0. Version source of truth — package.json. The shipped VERSION
+// constant in src/lib/katex-arabic/index.ts is auto-synced to it
+// BEFORE any artifact builds, so the namespace's VERSION always
+// matches the manifest and the self-check below can't drift.
+// ─────────────────────────────────────────────────────────────
+const ourPkg = JSON.parse(
+  readFileSync(resolve(root, "package.json"), "utf8"),
+);
+const ourVersion = ourPkg.version;
+
+const srcVersionPath = resolve(root, "src/lib/katex-arabic/index.ts");
+const srcVersionCode = readFileSync(srcVersionPath, "utf8");
+if (!srcVersionCode.includes(`export const VERSION = '${ourVersion}'`)) {
+  writeFileSync(
+    srcVersionPath,
+    srcVersionCode.replace(
+      /(export const VERSION\s*=\s*)(['"])([^'"]*)\2/,
+      `$1$2${ourVersion}$2`,
+    ),
+    "utf8",
+  );
+  console.log(`ℹ synced source VERSION constant → v${ourVersion}`);
+}
+
+// ─────────────────────────────────────────────────────────────
 // 1. JS bundles — UMD (.js + .cjs) and single-file ESM (.mjs).
 // ─────────────────────────────────────────────────────────────
-// UMD pass (also clears dist/cdn). Produces katex-arabic.min.js.
+// UMD pass (also clears dist/cdn). Run build to produce katex-arabic.min.js.
 run("npx vite build --config vite.cdn.config.ts", { SINGLE_FORMAT: "umd" });
 
 // Same UMD payload under a .cjs name so bare Node require() works
@@ -64,14 +89,7 @@ const katexPkg = JSON.parse(
 );
 const katexVersion = katexPkg.version;
 
-// Our own package version — the single source of truth that the
-// namespace's VERSION constant must always match (see self-check).
-const ourPkg = JSON.parse(
-  readFileSync(resolve(root, "package.json"), "utf8"),
-);
-const ourVersion = ourPkg.version;
-
-// katex.min.css references its fonts as relative urls (`fonts/...`).
+// (ourPkg/ourVersion are read at the top of the script — see section 0.)
 // The published files on jsDelivr live in the repo, not next to the
 // CSS, so rewrite those to the canonical npm CDN location to keep
 // the single-CSS-file promise (no font folder shipment needed).

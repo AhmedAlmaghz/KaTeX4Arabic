@@ -127,7 +127,8 @@
 /* ─── Matrices: keep columns aligned ─────────────────────── */
 .katex-arabic .katex .mtable {
   vertical-align: middle;
-  direction: ltr; /* math layout is direction-agnostic */
+  direction: ltr;
+  /* math layout is direction-agnostic */
 }
 
 .katex-arabic .katex .minner {
@@ -158,9 +159,11 @@
    `KaTeX_Size2`. Forcing a different line-height here, or overriding
    the font-family of the `.op-symbol` glyph, would invalidate those
    computed offsets and drift the bounds away from the two tips of the
-   symbol — so we deliberately add NO rules in this section. Cf. the
-   `.mop:not(.op-symbol):not(.op-limits)` exclusions above for the same
-   reason.
+   symbol — so we deliberately add NO layout/offset rules in this
+   section. (The one deliberate, purely-visual nudge below — the integral
+   upper-bound translateX — is cosmetic only and leaves every KaTeX
+   computed offset intact.) Cf. the `.mop:not(.op-symbol):not(.op-limits)`
+   exclusions above for the same reason.
    ═══════════════════════════════════════════════════════════════ */
 
 /* Big operators (∫ Σ ∏) — keep the glyph + its sub/sup limits as ONE
@@ -173,6 +176,34 @@
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+/* ─── Integral upper-bound nudge ─────────────────────────────
+   In some mirrored / tight layouts the upper (superscript) bound of a
+   big operator (∫ ∮ ∬ — and any bound that KaTeX stacks via .msupsub
+   instead of .op-limits) sits a little to the right of where it should
+   sit relative to the operator's two tips. This shifts ONLY that upper
+   bound 5px to the left. It is a GPU-composited, purely-visual
+   transform: the row is `.vlist>span { display:block; position:relative;
+   height:0 }`, so translateX does not alter KaTeX's computed top /
+   margin offsets that place the lower bound and the glyph. Make it
+   tunable (or disable, set to 0) from the wrapper:
+       .math-equation { --ka-upper-limit-shift: -5px; }  */
+.katex-arabic .katex .mop:not(.op-limits):has(> .op-symbol) .msupsub
+  .vlist-r:first-child .vlist > span:last-child {
+  transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -webkit-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -moz-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -ms-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -o-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    Mirroring
    ═══════════════════════════════════════════════════════════════ */
@@ -222,7 +253,7 @@
    the exact KaTeX internal nodes that hold readable glyphs; the GPU
    compositing hints (translateZ(0) + backface-visibility) prevent
    sub-pixel flicker on the flipped content. */
-.katex-arabic.mirror-sqrt .katex .sqrt > .vlist-t > .vlist-r > .vlist > span:first-child,
+.katex-arabic.mirror-sqrt .katex .sqrt>.vlist-t>.vlist-r>.vlist>span:first-child,
 .katex-arabic.mirror-sqrt .katex .sqrt .katex-root,
 .katex-arabic.mirror-sqrt .katex .sqrt .root {
   transform: var(--ka-mirror-transform) translateZ(0);
@@ -232,7 +263,7 @@
 }
 
 /* ─── Brackets: swap opening and closing pairs visually ──── */
-.katex-arabic.mirror-brackets .katex .mopen + .minner + .mclose,
+.katex-arabic.mirror-brackets .katex .mopen+.minner+.mclose,
 .katex-arabic.mirror-brackets .katex .delimsizing:first-of-type {
   /* Hook for future per-glyph mirroring */
 }
@@ -269,11 +300,25 @@
    font-size so they compose nicely with Tailwind's text-* classes.
    ═══════════════════════════════════════════════════════════════ */
 
-.katex-arabic.size-sm { --ka-size-multiplier: 0.85; }
-.katex-arabic.size-md { --ka-size-multiplier: 1;    }
-.katex-arabic.size-lg { --ka-size-multiplier: 1.15; }
-.katex-arabic.size-xl { --ka-size-multiplier: 1.35; }
-.katex-arabic.size-2xl { --ka-size-multiplier: 1.6; }
+.katex-arabic.size-sm {
+  --ka-size-multiplier: 0.85;
+}
+
+.katex-arabic.size-md {
+  --ka-size-multiplier: 1;
+}
+
+.katex-arabic.size-lg {
+  --ka-size-multiplier: 1.15;
+}
+
+.katex-arabic.size-xl {
+  --ka-size-multiplier: 1.35;
+}
+
+.katex-arabic.size-2xl {
+  --ka-size-multiplier: 1.6;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    Error state
@@ -307,6 +352,7 @@
     color: #000 !important;
     background: transparent !important;
   }
+
   .katex-arabic--error {
     border-color: #999;
     background: transparent;
@@ -412,11 +458,16 @@
 .katex-arabic .katex .mop:not(.op-symbol):not(.op-limits),
 .katex-arabic .katex .text {
   font-feature-settings:
-    'liga' 1,    /* standard ligatures (لا, etc.) */
-    'calt' 1,    /* contextual alternates (letter forms) */
-    'kern' 1,    /* kerning */
-    'mark' 1,    /* mark positioning (harakat) */
-    'mkmk' 1;    /* mark-to-mark positioning */
+    'liga' 1,
+    /* standard ligatures (لا, etc.) */
+    'calt' 1,
+    /* contextual alternates (letter forms) */
+    'kern' 1,
+    /* kerning */
+    'mark' 1,
+    /* mark positioning (harakat) */
+    'mkmk' 1;
+  /* mark-to-mark positioning */
   font-variant-ligatures: common-ligatures contextual;
   text-rendering: optimizeLegibility;
 }
@@ -446,6 +497,7 @@
 .katex-arabic.mirror-sqrt .katex .sqrt .mord.text,
 .katex-arabic.mirror-sqrt .katex .sqrt .mop:not(.op-symbol) {
   padding-inline-start: 0.08em;
+  margin-inline-start: 0.8em;
 }
 
 /* 5. Matrix cells with Arabic content. Centre-align horizontally,
@@ -454,5 +506,3 @@
 .katex-arabic .katex .mtable .mop:not(.op-symbol) {
   text-align: center;
 }
-
-
