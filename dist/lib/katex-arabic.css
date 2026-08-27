@@ -1,0 +1,537 @@
+/* ════════════════════════════════════════════════════════════════
+   katex-arabic.css
+   KaTeX Arabic — Core rendering styles.
+
+   Goals:
+     • Make Arabic equations visually match their Latin counterparts
+       in size, baseline, alignment, and weight.
+     • Provide a small, well-named API of classes (katex-arabic, is-display,
+       is-inline, mirror-sqrt, mirror-big-ops, mirror-brackets, mirror-symbols,
+       full-rtl-mode) so callers can opt into behaviours.
+     • Use CSS variables for theming; never hardcode colors in the
+       main selectors.
+
+   Conventions:
+     • The root wrapper has class `katex-arabic` and is set to `inline-block`
+       in inline mode and `block` (via `.is-display`) in display mode.
+     • The inner `.katex` element is left untouched by KaTeX; we only
+       adjust sizes, alignment, and mirroring around it.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ─── Design tokens ──────────────────────────────────────── */
+.katex-arabic {
+  /* Sizes mirror KaTeX's own scale so Arabic and Latin match. */
+  --ka-size-multiplier: 1;
+  /* Robust Arabic-first fallback chain. If the preferred font (Amiri)
+     is not loaded, the browser walks down to other high-quality Arabic
+     math/text faces before falling back to KaTeX_Main and a generic
+     serif. This keeps Arabic operator names and \text{} content legible
+     and correctly shaped in every environment. */
+  --ka-font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic',
+    'Cairo', 'Tajawal', 'KaTeX_Main', 'Latin Modern Math', serif;
+  --ka-color: inherit;
+  --ka-line-height: 1.6;
+
+  /* Mirror transforms — only used when the corresponding class is on. */
+  --ka-mirror-transform: scaleX(-1);
+
+  /* The default display */
+  display: inline-block;
+  direction: rtl;
+  font-family: var(--ka-font-family);
+  color: var(--ka-color);
+  line-height: var(--ka-line-height);
+  font-size: calc(1em * var(--ka-size-multiplier));
+  text-align: center;
+  unicode-bidi: isolate;
+  vertical-align: middle;
+}
+
+/* ─── Display vs inline ──────────────────────────────────── */
+.katex-arabic.is-display {
+  display: block;
+  text-align: center;
+  margin: 0.75em 0;
+}
+
+.katex-arabic.is-inline {
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ─── The inner .katex element ───────────────────────────── */
+.katex-arabic .katex {
+  font-family: var(--ka-font-family);
+  direction: rtl;
+  text-align: center;
+  display: inline-block;
+  /* The horizontal layout of math expressions is LTR (operators
+     have direction), but the surrounding text is RTL. Keep this
+     to "ltr" to avoid mirrored placement of signs. */
+  unicode-bidi: isolate;
+}
+
+.katex-arabic .katex-display {
+  margin: 0;
+  text-align: center;
+}
+
+.katex-arabic .katex .base {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+/* ─── operator-name (operatorname) ───────────────────────── */
+/* Scope the Arabic font override to Arabic operator names only
+   (نها, جا, …). We MUST NOT match `.mop.op-symbol.large-op` —
+   KaTeX relies on `.op-symbol.large-op { font-family: KaTeX_Size2 }`
+   to render big-operator glyphs (∫ Σ ∏ ∮) in the tall Size2 math
+   font. This selector has higher CSS specificity (three classes) than
+   KaTeX's two-class rule, so applying it bare would override the
+   Size2 font and re-render the integral in Amiri / KaTeX_Main — the
+   glyph would then be the wrong size, the strut/limits KaTeX computed
+   would be matched to a glyph that no longer fills them, and the
+   bounds would drift away from the two tips of the symbol. Excluding
+   `.op-symbol` (the integral/sum glyph itself) and `.op-limits` (the
+   outer wrapper that stacks limits above/below) restores KaTeX's
+   specialised fonts for big operators while keeping Arabic names. */
+.katex-arabic .katex .mop:not(.op-symbol):not(.op-limits) {
+  font-family: var(--ka-font-family);
+  font-weight: 400;
+}
+
+/* ─── mathnormal / mathit — keep upright so Arabic doesn't italicise */
+.katex-arabic .katex .mathnormal,
+.katex-arabic .katex .mathit {
+  font-style: normal;
+}
+
+/* ─── Text inside math (e.g. \text{د}) ───────────────────── */
+.katex-arabic .katex .mord.text,
+.katex-arabic .katex .text {
+  font-family: var(--ka-font-family);
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+/* ─── Fractions: vertical center with the rest of the line ─ */
+.katex-arabic .katex .mfrac {
+  vertical-align: middle;
+}
+
+.katex-arabic .katex .frac-line {
+  min-width: 100%;
+}
+
+/* ─── Matrices: keep columns aligned ─────────────────────── */
+.katex-arabic .katex .mtable {
+  vertical-align: middle;
+  direction: ltr;
+  /* math layout is direction-agnostic */
+}
+
+.katex-arabic .katex .minner {
+  vertical-align: middle;
+}
+
+/* ─── Delimiters: ensure proper baseline ─────────────────── */
+.katex-arabic .katex .delimsizing,
+.katex-arabic .katex .mopen,
+.katex-arabic .katex .mclose {
+  vertical-align: middle;
+}
+
+/* ─── Superscript / subscript ───────────────────────────────
+   KaTeX positions the bounds of ∫, Σ, ∏, lim and sub-/super-scripts
+   with great precision via the `.vlist-t` inline-table and computed
+   `top:-Xem` offsets on its row spans. The exact offsets were
+   calculated by KaTeX assuming the inherited line-height (1.2 on
+   `.katex`). We deliberately do NOT touch `.msupsub`, `.vlist-t`, or
+   `.vlist` here — any vertical-align / line-height override on them
+   would shift the computed baselines and misalign the limits. */
+
+/* ═══════════════════════════════════════════════════════════════
+   Limits & big operators (lim, max, min, ∫, Σ, ∏)
+   We let KaTeX render these natively. KaTeX positions the bounds with
+   `top:-Xem` offsets computed against the inherited line-height (1.2 on
+   `.katex`) and against the metric of the big-operator glyph in
+   `KaTeX_Size2`. Forcing a different line-height here, or overriding
+   the font-family of the `.op-symbol` glyph, would invalidate those
+   computed offsets and drift the bounds away from the two tips of the
+   symbol — so we deliberately add NO layout/offset rules in this
+   section. (The one deliberate, purely-visual nudge below — the integral
+   upper-bound translateX — is cosmetic only and leaves every KaTeX
+   computed offset intact.) Cf. the `.mop:not(.op-symbol):not(.op-limits)`
+   exclusions above for the same reason.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Big operators (∫ Σ ∏) — keep the glyph + its sub/sup limits as ONE
+   atomic LTR unit. Under direction:rtl the bidi algorithm would
+   otherwise reorder the integral glyph against its .msupsub limits and
+   scatter the bounds away from the two tips of the symbol. Isolating
+   the .mop keeps the limits anchored at the correct tips while the
+   integral still participates in the RTL equation as a single atom. */
+.katex-arabic .katex .mop:has(> .op-symbol) {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* ─── Integral upper-bound nudge (RTL only) ──────────────────
+   In the mirrored / full-RTL layout the upper (superscript) bound of a
+   big operator (∫ ∮ ∬ — and any bound that KaTeX stacks via .msupsub
+   instead of .op-limits) sits a little to the right of where it should
+   sit relative to the operator's two tips. This shifts ONLY that upper
+   bound 5px to the left. It is scoped to .full-rtl-mode so an explicit
+   LTR rendering keeps KaTeX's own placement untouched. It is a
+   GPU-composited, purely-visual transform: the row is
+   `.vlist>span { display:block; position:relative; height:0 }`, so
+   translateX does not alter KaTeX's computed top / margin offsets that
+   place the lower bound and the glyph. Make it tunable (or disable,
+   set to 0) from the wrapper:
+        .math-equation { --ka-upper-limit-shift: -5px; }  */
+.katex-arabic.full-rtl-mode .katex .mop:not(.op-limits):has(> .op-symbol) .msupsub
+  .vlist-r:first-child .vlist > span:last-child {
+  transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -webkit-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -moz-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -ms-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  -o-transform:
+    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Mirroring
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Big operators (∫ Σ ∏ ∮) ────────────────────────────── */
+/* Mirror the large-operator glyphs for RTL. The transform is
+   GPU-composited (translateZ(0)) to avoid sub-pixel flicker on the
+   mirrored glyph, and backface-visibility is hidden so the flipped
+   glyph never shows its reverse face during compositing. The glyph's
+   sub/sup limits stay anchored because the parent .mop is isolated as
+   an atomic LTR unit (see the :has(> .op-symbol) rule above). */
+.katex-arabic.mirror-big-ops .katex .mop-int,
+.katex-arabic.mirror-big-ops .katex .op-symbol.large-op {
+  display: inline-block;
+  transform: var(--ka-mirror-transform) translateZ(0);
+  -webkit-transform: var(--ka-mirror-transform) translateZ(0);
+  -moz-transform: var(--ka-mirror-transform) translateZ(0);
+  -ms-transform: var(--ka-mirror-transform) translateZ(0);
+  -o-transform: var(--ka-mirror-transform) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ─── Square root sign ───────────────────────────────────── */
+/* Mirror the radical sign for RTL: flip the whole .sqrt container
+   (this moves the vertical bar to the reading-start side and places
+   the radicand under the overline), then counter-flip ONLY the
+   readable content — the radicand cell and any n-th root — so the
+   text itself stays upright. Without the container flip the bar
+   stays on the wrong (left) side; without the counter-flip the
+   radicand would be mirrored. */
+.katex-arabic.mirror-sqrt .katex .sqrt {
+  display: inline-block;
+  transform: var(--ka-mirror-transform) translateZ(0);
+  transform-origin: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* A CSS transform does not change layout, so the mirrored radical
+     (bar now on the reading-start side) can collide with the symbol
+     that precedes it. Reserve small horizontal margins on both
+     reading sides so the flipped sign never touches its neighbours. */
+  margin-inline: 0.15em;
+}
+
+/* Counter-flip the readable content so the radicand and any n-th root
+   index stay upright after the container flip. These selectors target
+   the exact KaTeX internal nodes that hold readable glyphs; the GPU
+   compositing hints (translateZ(0) + backface-visibility) prevent
+   sub-pixel flicker on the flipped content. */
+.katex-arabic.mirror-sqrt .katex .sqrt>.vlist-t>.vlist-r>.vlist>span:first-child,
+.katex-arabic.mirror-sqrt .katex .sqrt .katex-root,
+.katex-arabic.mirror-sqrt .katex .sqrt .root {
+  transform: var(--ka-mirror-transform) translateZ(0);
+  transform-origin: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ─── Brackets: swap opening and closing pairs visually ──── */
+.katex-arabic.mirror-brackets .katex .mopen+.minner+.mclose,
+.katex-arabic.mirror-brackets .katex .delimsizing:first-of-type {
+  /* Hook for future per-glyph mirroring */
+}
+
+/* ─── Comparison symbols: use KaTeX command mirroring which
+       is already applied at the LaTeX level, so no DOM mirror needed. */
+.katex-arabic.mirror-symbols .katex {
+  /* No additional transforms — mirroring happens in processArabicLatex */
+}
+
+/* ─── Piecewise definitions (cases): Arabic layout ──────────
+   \begin{cases} is a piecewise definition, not an ordinary array:
+   in the Arabic convention the brace sits on the READING START
+   (right) side with the values adjacent to it. Under full RTL mode
+   the .base already reorders the atoms, so the only work needed
+   here is: (1) lay the two columns out right-to-left so the value
+   column ends up next to the brace, (2) mirror the brace glyph
+   itself so its open side faces the content, and (3) right-align
+   the cell contents toward the brace, matching Arabic typography. */
+.katex-arabic.has-cases .katex .mtable {
+  direction: rtl;
+}
+
+.katex-arabic.has-cases .katex .mopen.delimcenter > .delimsizing,
+.katex-arabic.has-cases .katex .delim-size1 > span,
+.katex-arabic.has-cases .katex .delim-size4 > span {
+  display: inline-block;
+  transform: var(--ka-mirror-transform);
+  -webkit-transform: var(--ka-mirror-transform);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.katex-arabic.has-cases .katex .mtable .col-align-l > .vlist-t > .vlist-r > .vlist > span {
+  text-align: right;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Full RTL mode (toggle)
+   When enabled, the whole .katex element flips to RTL direction.
+   This is the "Arabic-first" mode for users who want the entire
+   equation to read right-to-left (powers on left, subscripts on right).
+   ═══════════════════════════════════════════════════════════════ */
+
+.katex-arabic.full-rtl-mode .katex {
+  direction: rtl;
+}
+
+.katex-arabic.full-rtl-mode .katex-display {
+  direction: rtl;
+  text-align: center;
+}
+
+.katex-arabic.full-rtl-mode .katex .base {
+  direction: rtl;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Size variants
+   Sizes are *multipliers* — they stack on top of the inherited
+   font-size so they compose nicely with Tailwind's text-* classes.
+   ═══════════════════════════════════════════════════════════════ */
+
+.katex-arabic.size-sm {
+  --ka-size-multiplier: 0.85;
+}
+
+.katex-arabic.size-md {
+  --ka-size-multiplier: 1;
+}
+
+.katex-arabic.size-lg {
+  --ka-size-multiplier: 1.15;
+}
+
+.katex-arabic.size-xl {
+  --ka-size-multiplier: 1.35;
+}
+
+.katex-arabic.size-2xl {
+  --ka-size-multiplier: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Error state
+   ═══════════════════════════════════════════════════════════════ */
+
+.katex-arabic--error {
+  padding: 0.5em 0.75em;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.katex-arabic__error-icon {
+  margin-inline-end: 0.25em;
+  font-weight: 700;
+}
+
+.katex-arabic__error-text {
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.95em;
+  word-break: break-all;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Print styles
+   ═══════════════════════════════════════════════════════════════ */
+
+@media print {
+  .katex-arabic {
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  .katex-arabic--error {
+    border-color: #999;
+    background: transparent;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Latin visual parity
+   The goal of this block is to make Arabic glyphs (operator names,
+   \text{…} content, differentials) behave exactly like their Latin
+   KaTeX counterparts: same line metrics, same baseline, no clipping,
+   and — opt-in — an optical size factor for fonts whose x-height
+   differs from KaTeX_Main.
+
+   Everything here defaults to "no visual change" (factor = 1) so the
+   rules are safe to ship out of the box; they only activate when the
+   caller needs them (e.g. the operatorScale option).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Arabic ascenders / descenders / diacritics must never be clipped. */
+.katex-arabic .katex {
+  overflow: visible;
+}
+
+/* 2. Operator names and math text get a tight, stable line box so the
+      Arabic font metrics cannot inflate the formula height. */
+.katex-arabic .katex .mop:not(.op-symbol):not(.op-limits),
+.katex-arabic .katex .mord.text,
+.katex-arabic .katex .textord.text {
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+/* 3. Arabic math text stays upright and regular — same weight and
+      posture as Latin \operatorname names. */
+.katex-arabic .katex .mord.text,
+.katex-arabic .katex .textord.text {
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+}
+
+/* 4. Opt-in optical scale (default 1 → no change). Expose the knob as a
+      CSS variable so themers can tune it from anywhere:
+        .math-equation { --ka-op-scale: 1.08; }
+      The wrapper also receives it inline from the operatorScale option. */
+.katex-arabic .katex .mop .mord.text,
+.katex-arabic .katex .mop .text,
+.katex-arabic .katex .mord.text,
+.katex-arabic .katex .textord.text {
+  font-size: calc(1em * var(--ka-op-scale, 1));
+}
+
+/* 5. We do NOT override line-height on fractions, roots, or
+       super/sub-script vlists. KaTeX positions every row inside these
+       vlists with top:-Xem offsets that were calculated assuming
+       the inherited line-height (1.2 on .katex). Forcing
+       line-height: 1 here would change the line-box baseline within
+       each row and shift the radicand of a root, the bar of a fraction,
+       and crucially the upper/lower limits of \int_a^b away from
+       the two tips of the operator glyph. Keeping the default inheritance
+       leaves every offset exactly where KaTeX computed it, which also
+       matches the Latin reference. */
+
+/* 6. Matrices: every column centers on the math axis, like Latin arrays. */
+.katex-arabic .katex .mtable .col-align-c {
+  vertical-align: middle;
+}
+
+/* 7. Inline mode: match KaTeX's own compact line box so an Arabic inline
+      equation sits on the text line at the same height as a Latin one. */
+.katex-arabic.is-inline {
+  line-height: 1.2;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Arabic character metrics compensation
+   ─────────────────────────────────────────────────────────────
+   KaTeX's font-metrics tables only cover Latin math glyphs. When an
+   Arabic character (digit ٠-٩, letter س, operator جا, …) is rendered,
+   KaTeX creates a SymbolNode with height=0, depth=0, width=0 because
+   the character is not in its metrics tables. The browser still draws
+   the glyph at its natural font size, but KaTeX's layout engine
+   (vlists, struts, fraction bars, sqrt signs, super/sub positions)
+   was computed against the zero metrics — so Arabic text can appear
+   misaligned, clipped, or colliding with adjacent symbols.
+
+   The rules below compensate at the CSS level WITHOUT overriding the
+   carefully-tuned line-height / display / vertical-align values set
+   earlier in this file. They are purely additive:
+     1. Enable OpenType features for correct Arabic shaping.
+     2. Prevent clipping of tall Arabic ascenders / descenders.
+     3. Add minimal spacing to prevent symbol collision.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. OpenType features for correct Arabic shaping. These are essential
+      for fonts like Amiri, Noto Naskh Arabic, and Scheherazade New to
+      render contextual letter forms, ligatures (لا, لله), and proper
+      mark (harakat) positioning. This is purely additive and does not
+      affect layout metrics. */
+.katex-arabic .katex .mord.text,
+.katex-arabic .katex .mop:not(.op-symbol):not(.op-limits),
+.katex-arabic .katex .text {
+  font-feature-settings:
+    'liga' 1,
+    /* standard ligatures (لا, etc.) */
+    'calt' 1,
+    /* contextual alternates (letter forms) */
+    'kern' 1,
+    /* kerning */
+    'mark' 1,
+    /* mark positioning (harakat) */
+    'mkmk' 1;
+  /* mark-to-mark positioning */
+  font-variant-ligatures: common-ligatures contextual;
+  text-rendering: optimizeLegibility;
+}
+
+/* 2. Arabic characters must never be clipped by overflow:hidden on
+      parent vlist rows. KaTeX's vlist-t uses overflow:visible by
+      default, but some nested containers can clip tall Arabic
+      ascenders (ا, ل, ك) or descenders (ي, ج, ع). */
+.katex-arabic .katex .vlist-t,
+.katex-arabic .katex .vlist-r,
+.katex-arabic .katex .vlist {
+  overflow: visible;
+}
+
+/* 3. Operator names (جا, جتا, نها, …) rendered via \operatorname{}.
+      These are the most visible Arabic elements. A small horizontal
+      padding prevents collision with adjacent symbols without changing
+      the display mode or line-height (which are deliberately tuned
+      above). */
+.katex-arabic .katex .mop:not(.op-symbol):not(.op-limits) {
+  padding-inline: 0.04em;
+}
+
+/* 4. Ensure the radical sign (√) and its Arabic radicand don't collide.
+      The mirrored sqrt (bar on the right) needs extra clearance for
+      Arabic text which tends to be wider than Latin. */
+.katex-arabic.mirror-sqrt .katex .sqrt .mord.text,
+.katex-arabic.mirror-sqrt .katex .sqrt .mop:not(.op-symbol) {
+  padding-inline-start: 0.08em;
+  margin-inline-start: 0.8em;
+}
+
+/* 5. Matrix cells with Arabic content. Centre-align horizontally,
+      matching Latin matrix behaviour. */
+.katex-arabic .katex .mtable .mord.text,
+.katex-arabic .katex .mtable .mop:not(.op-symbol) {
+  text-align: center;
+}
