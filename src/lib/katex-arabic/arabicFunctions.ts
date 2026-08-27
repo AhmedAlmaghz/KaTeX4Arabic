@@ -55,9 +55,12 @@ export const FUNCTION_MAP: Record<string, string> = {
   '\\ln': '\\operatorname{لو}',
   '\\log': '\\operatorname{لغ}',
   '\\lg': '\\operatorname{لغ}',
+  '\\exp': '\\operatorname{أس}',
 
   // ─── Limits (kept as \arabiLim; translated separately) ───
-  '\\liminf': '\\operatorname*{نها}',
+  // Named consistently with the \sup / \inf entries (أعلى / أدنى)
+  // so the operator vocabulary stays internally coherent.
+  '\\liminf': '\\operatorname*{نها\\,أدنى}',
 
   // ─── Maxima / minima ─────────────────────────────────────
   '\\max': '\\operatorname*{أقصى}',
@@ -107,7 +110,7 @@ export const FUNCTION_MAP: Record<string, string> = {
   '\\nabla': '\\nabla',
   '\\infty': '\\infty',
   '\\lim': '\\lim',  // processed via arabiLim pathway
-  '\\limsup': '\\operatorname*{نها}',
+  '\\limsup': '\\operatorname*{نها\\,أعلى}',
 
   // ─── Special marker used internally for limit translation ─
   // \arabiLim is a sentinel that the translator pipeline replaces
@@ -151,9 +154,13 @@ export const VARIABLE_MAP: Record<string, string> = {
   r: 'ر',
   s: 'ز',
   t: 'ت',
-  // u: 'ث',
-  // v: 'ڤ',
-  // w: 'و',
+  u: 'ث',
+  v: 'ڤ',
+  w: 'و',
+  // Lowercase u/v/w mirror the uppercase entries above (U: 'ث',
+  // V: 'ڤ', W: 'و') so that both cases share one convention — and so
+  // that differentials (du, dv) never leak a Latin letter into the
+  // otherwise-Arabic form \text{د}\text{…}.
 
   // ─── Uppercase ───────────────────────────────────────────
   A: 'أ',
@@ -213,20 +220,19 @@ export const GREEK_MAP: Record<string, string> = {
 /**
  * Convert a `dX` differential to Arabic form: `دX` where X is the
  * Arabic variable. e.g. dx → د س, dθ → د θ.
+ *
+ * Derived directly from VARIABLE_MAP so this exported table can never
+ * drift away from the behaviour of translateDifferentials (which reads
+ * VARIABLE_MAP at translation time). Single source of truth.
  */
-export const DIFFERENTIAL_PATTERNS: Record<string, string> = {
-  dx: '\\text{د}\\text{س}',
-  dy: '\\text{د}\\text{ص}',
-  dz: '\\text{د}\\text{ع}',
-  dt: '\\text{د}\\text{ز}',
-  dr: '\\text{د}\\text{ر}',
-  du: '\\text{د}\\text{ث}',
-  dv: '\\text{د}\\text{ڤ}',
-  ds: '\\text{د}\\text{س}',
-  dA: '\\text{د}\\text{أ}',
-  dV: '\\text{د}\\text{ح}',
-  dS: '\\text{د}\\text{س}',
-};
+const DIFFERENTIAL_LETTERS = ['x', 'y', 'z', 't', 'r', 'u', 'v', 's', 'A', 'V', 'S'] as const;
+
+export const DIFFERENTIAL_PATTERNS: Record<string, string> = Object.fromEntries(
+  DIFFERENTIAL_LETTERS.map((letter) => [
+    `d${letter}`,
+    `\\text{د}\\text{${VARIABLE_MAP[letter] ?? letter}}`,
+  ]),
+);
 
 // ═══════════════════════════════════════════════════════════════
 //  Internal helpers
@@ -310,9 +316,11 @@ export function translateDifferentials(latex: string): string {
     },
   );
 
-  // Greek-letter differentials: d\theta, d\phi, d\rho, d\alpha, d\beta.
+  // Greek-letter differentials: d\theta, d\phi, d\rho, d\alpha, …
+  // Covers every lowercase Greek command KaTeX supports, so a
+  // differential never leaks through untranslated.
   result = result.replace(
-    /d\\(theta|phi|rho|alpha|beta|gamma|delta)\b/g,
+    /d\\(alpha|beta|gamma|delta|epsilon|varepsilon|zeta|eta|vartheta|theta|iota|kappa|lambda|mu|nu|xi|pi|varpi|rho|varrho|sigma|varsigma|tau|upsilon|varphi|phi|chi|psi|omega)\b/g,
     (_match, greek: string) => `\\text{د}\\${greek}`,
   );
 

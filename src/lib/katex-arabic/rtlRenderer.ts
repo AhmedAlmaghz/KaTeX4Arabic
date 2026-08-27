@@ -29,14 +29,16 @@ import {
   translateDifferentials,
 } from './arabicFunctions';
 import { applyMirroredSymbols } from './arabicSymbols';
+import { collectProtectedRegions, isInsideRegions } from './protectedRegions';
 import type {
   ArabicKatexOptions,
   NumeralStyle,
   PartialArabicOptions,
+  StructuralClass,
 } from './types';
 
 // Re-export types for convenience.
-export type { ArabicKatexOptions, NumeralStyle, PartialArabicOptions } from './types';
+export type { ArabicKatexOptions, NumeralStyle, PartialArabicOptions, StructuralClass } from './types';
 
 // ═══════════════════════════════════════════════════════════════
 //  Constants & guards
@@ -267,6 +269,14 @@ export function processArabicLatex(
 }
 
 /**
+ * TeX dimension units. A digit run glued directly to one of these
+ * (5pt, 2em, 10cm, …) is a size literal — e.g. \hspace{5pt} or
+ * \rule{2cm} — not math content. Converting it would corrupt the
+ * size ("Invalid size" in KaTeX), so those runs are emitted verbatim.
+ */
+const TEX_UNIT_PATTERN = /^(?:pt|mm|cm|in|ex|em|mu|px|pc|bp|dd|cc|nd|nc|sp)/;
+
+/**
  * Convert Latin digits in a LaTeX string to the requested numeral style.
  *
  * The regex is careful to skip digits that appear inside LaTeX command
@@ -304,6 +314,15 @@ function convertNumbersInLatex(
           }
         }
         const run = latex.slice(i, j);
+
+        // A digit run glued directly to a TeX unit is a dimension
+        // literal (\hspace{5pt}, \rule{2cm}, …) — emit it verbatim.
+        if (TEX_UNIT_PATTERN.test(latex.slice(j, j + 2))) {
+          result += run;
+          i = j;
+          continue;
+        }
+
         result += formatSeparators
           ? formatArabicNumber(run)
           : toArabicNumerals(run, style);
@@ -354,8 +373,60 @@ export function getArabicMacros(
     '\\ت': '\\text{ت}',
     '\\هـ': '\\text{هـ}',
 
+    // \pmod keeps its argument: the macro consumes {…} and renders the
+    // parenthesized Arabic form — matching LaTeX's own \pmod semantics
+    // (KaTeX lets a user macro override the built-in \pmod).
+    '\\pmod': '\\,(\\operatorname{باقي}\\,#1)',
+
     ...customMacros,
   };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Structural detection (piecewise / cases layouts)
+// ═══════════════════════════════════════════════════════════════
+
+const CASES_ENV_PATTERN = /\\begin\{(?:cases|dcases)\}/g;
+const LEFT_BRACE_PATTERN = /\\left\\\{/g;
+const RIGHT_DOT_PATTERN = /\\right\./g;
+
+/**
+ * Detect structural features that need dedicated RTL handling.
+ *
+ * Returns `'has-cases'` for real piecewise definitions —
+ * \begin{cases} / \begin{dcases}, or the explicit
+ * `\left\{ … \right.` form — and null for everything else
+ * (plain math, ordinary matrices, or the word "cases" inside
+ * \text{} prose, which is never a layout construct).
+ *
+ * @param latex LaTeX source (raw or processed — \begin{cases}
+ *              survives the Arabic transforms unchanged).
+ */
+export function detectStructuralClass(latex: string): StructuralClass | null {
+  if (!latex) return null;
+
+  const protectedRegions = collectProtectedRegions(latex);
+  const occursOutsideProse = (pattern: RegExp): boolean => {
+    pattern.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = pattern.exec(latex)) !== null) {
+      if (!isInsideRegions(m.index, protectedRegions)) return true;
+    }
+    return false;
+  };
+
+  if (occursOutsideProse(CASES_ENV_PATTERN)) return 'has-cases';
+
+  // The \left\{ … \right. pair only counts as piecewise when BOTH
+  // halves are present; a lone \left\{ is an ordinary set brace.
+  if (
+    occursOutsideProse(LEFT_BRACE_PATTERN) &&
+    occursOutsideProse(RIGHT_DOT_PATTERN)
+  ) {
+    return 'has-cases';
+  }
+
+  return null;
 }
 
 /**
@@ -363,7 +434,10 @@ export function getArabicMacros(
  * The "katex-arabic" base class is always present; the rest are
  * toggled by options.
  */
-export function buildCssClasses(options: PartialArabicOptions): string[] {
+export function buildCssClasses(
+  options: PartialArabicOptions,
+  structuralClass: StructuralClass | null = null,
+): string[] {
   const opts = resolveOptions(options);
   const classes = ['katex-arabic'];
 
@@ -374,6 +448,10 @@ export function buildCssClasses(options: PartialArabicOptions): string[] {
   if (opts.fullArabicMode) classes.push('full-rtl-mode');
   if (opts.displayMode) classes.push('is-display');
   else classes.push('is-inline');
+
+  // Structural classes are derived from the LaTeX shape, not from
+  // options, and are appended by the render path when detected.
+  if (structuralClass) classes.push(structuralClass);
 
   return classes;
 }
@@ -391,20 +469,37 @@ export function getMirrorClasses(options: PartialArabicOptions): string {
 // ═══════════════════════════════════════════════════════════════
 
 /**
+ * Build the Arabic-first font stack used by the wrapper and by the
+ * runtime DOM styling. Mirrors the fallback tokens defined on
+ * `.katex-arabic` in katex-arabic.css, with the caller's preferred
+ * family promoted to the front so both layers stay consistent.
+ */
+export function buildFontStack(preferred: string): string {
+  return (
+    `'${preferred}', 'Scheherazade New', 'Noto Naskh Arabic', ` +
+    `'Cairo', 'Tajawal', 'KaTeX_Main', 'Latin Modern Math', serif`
+  );
+}
+
+/**
  * Wrap the KaTeX-rendered HTML in a span with the right classes
  * and inline styles for Arabic rendering.
  */
 export function wrapWithArabicStyles(
   html: string,
   options: PartialArabicOptions,
+  structuralClass: StructuralClass | null = null,
 ): string {
   const opts = resolveOptions(options);
-  const classes = buildCssClasses(opts);
+  const classes = buildCssClasses(opts, structuralClass);
 
-  // Use CSS variables so all sizes/colors are themable.
+  // Use CSS variables so all sizes/colors are themable. The font stack
+  // is set through --ka-font-family (never as a bare font-family) so the
+  // inline value extends — rather than silently replacing — the robust
+  // Arabic fallback chain declared in katex-arabic.css.
   return (
     `<span class="${classes.join(' ')}" dir="${opts.direction}" ` +
-    `style="font-family:'${opts.fontFamily}','KaTeX_Main',serif;` +
-    `direction:${opts.direction};--ka-op-scale:${opts.operatorScale};">${html}</span>`
+    `style="direction:${opts.direction};--ka-op-scale:${opts.operatorScale};` +
+    `--ka-font-family:${buildFontStack(opts.fontFamily)};">${html}</span>`
   );
 }

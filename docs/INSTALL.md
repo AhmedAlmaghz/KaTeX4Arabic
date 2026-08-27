@@ -129,7 +129,7 @@ KaTeXArabic.render('\\int_0^1 x^2 dx', element);
 KaTeXArabic.toArabicNumerals('123');            // '١٢٣'
 KaTeXArabic.translateFunctions('sin');           // 'جا'
 KaTeXArabic.resolveOptions({});                  // الخيارات الافتراضية
-KaTeXArabic.VERSION;                             // '1.1.2'
+KaTeXArabic.VERSION;                             // '1.1.4'
 ```
 
 ---
@@ -255,9 +255,9 @@ renderArabicToString(latex, {
 | `translateVars` | `boolean` | `true` | ترجمة المتغيرات اللاتينية |
 | `translateDiffs` | `boolean` | `true` | ترجمة التفاضلات `dx → د س` |
 | `mirrorSymbols` | `boolean` | `true` | عكس رموز المقارنة والأسهم |
-| `mirrorBigOperators` | `boolean` | `true` | عكس `∫ Σ ∏` بصريا |
-| `mirrorSqrt` | `boolean` | `true` | عكس رمز الجذر `√` |
-| `mirrorBrackets` | `boolean` | `true` | عكس الأقواس الزاوية والكبيرة |
+| `mirrorBigOperators` | `boolean` | `true` | عكس `∫ Σ ∏` والحدود (الحد الأدنى يميناً والعلوي يساراً) |
+| `mirrorSqrt` | `boolean` | `true` | عكس رمز الجذر `√` بجميع درجاته (تربيعية، نونية، متداخلة) |
+| `mirrorBrackets` | `boolean` | `true` | عكس الأقواس الزاوية والكبيرة والدوال المتقطعة (`cases`) |
 | `direction` | `rtl \| ltr` | `rtl` | اتجاه المعادلة |
 | `fullArabicMode` | `boolean` | `true` | قراءة RTL للمعادلة كاملة |
 | `operatorScale` | `number` | `1.05` | حجم العوامل العربية (0.9–1.25) |
@@ -283,6 +283,7 @@ import {
   translateAll,          // كل الترجمات
   validateLatex,         // التحقق من صحة LaTeX
   processLatex,          // المعالجة دون عرض
+  detectStructuralClass, // كشف البنية الخاصة (has-cases للدوال المتقطعة)
   clearRenderCache,      // مسح ذاكرة التخزين المؤقت
   VERSION,               // رقم إصدار المكتبة
 } from 'katex4arabic';

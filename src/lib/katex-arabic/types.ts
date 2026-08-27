@@ -12,6 +12,14 @@ export type NumeralStyle = 'arabic' | 'extended' | 'latin';
 /** Text direction for the rendered equation. */
 export type Direction = 'rtl' | 'ltr';
 
+/**
+ * A structural CSS class derived from the shape of the LaTeX itself
+ * (not from user options). It scopes DOM-level rules that only make
+ * sense for a particular layout — e.g. `has-cases` for piecewise
+ * definitions rendered with the Arabic brace on the right.
+ */
+export type StructuralClass = 'has-cases';
+
 /** Render target (block | inline). */
 export type RenderMode = 'block' | 'inline';
 

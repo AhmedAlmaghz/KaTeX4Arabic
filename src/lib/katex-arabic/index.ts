@@ -27,6 +27,7 @@ import {
   resolveOptions,
   buildCssClasses,
   getArabicMacros,
+  detectStructuralClass,
 } from './rtlRenderer';
 import {
   toArabicNumerals,
@@ -50,10 +51,11 @@ export {
   resolveOptions,
   buildCssClasses,
   getArabicMacros,
+  detectStructuralClass,
   clearRenderCache,
   MAX_INPUT_LENGTH,
 } from './rtlRenderer';
-export type { ArabicKatexOptions, PartialArabicOptions, RenderResult } from './types';
+export type { ArabicKatexOptions, PartialArabicOptions, RenderResult, StructuralClass } from './types';
 
 // ─── Re-exports: render functions ────────────────────────────
 export {
@@ -101,7 +103,7 @@ export {
 // ─── Version constant ──────────────────────────────────────
 // Kept in sync with package.json by scripts/build-cdn.mjs
 // (the CDN build fails if these ever drift apart).
-export const VERSION = '1.1.3';
+export const VERSION = '1.1.4';
 
 // ═══════════════════════════════════════════════════════════════
 //  Default export — the "KaTeXArabic" namespace
@@ -144,6 +146,7 @@ const KaTeXArabic = {
   resolveOptions,
   buildCssClasses,
   getArabicMacros,
+  detectStructuralClass,
   clearCache: clearRenderCache,
   DEFAULT_OPTIONS,
   VERSION,

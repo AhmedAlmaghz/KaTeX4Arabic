@@ -45,6 +45,44 @@ const COMPARISON_MIRRORS: Record<string, string> = {
   '\\ngtr': '\\nless',
   '\\nleq': '\\ngeq',
   '\\ngeq': '\\nleq',
+  // Double-struck and slanted comparisons (KaTeX-supported pairs).
+  '\\leqq': '\\geqq',
+  '\\geqq': '\\leqq',
+  '\\eqslantless': '\\eqslantgtr',
+  '\\eqslantgtr': '\\eqslantless',
+  '\\lll': '\\ggg',
+  '\\ggg': '\\lll',
+  '\\lneq': '\\gneq',
+  '\\gneq': '\\lneq',
+  // Predecessor / successor relations.
+  '\\prec': '\\succ',
+  '\\succ': '\\prec',
+  '\\preceq': '\\succeq',
+  '\\succeq': '\\preceq',
+  '\\nprec': '\\nsucc',
+  '\\nsucc': '\\nprec',
+  '\\npreceq': '\\nsucceq',
+  '\\nsucceq': '\\npreceq',
+  // Set relations: like the comparisons above, the open end of the
+  // relation faces the reading start (right in RTL) after mirroring,
+  // so A ⊂ B is read "A contained in B" with B on the left.
+  '\\subset': '\\supset',
+  '\\supset': '\\subset',
+  '\\subseteq': '\\supseteq',
+  '\\supseteq': '\\subseteq',
+  '\\subsetneq': '\\supsetneq',
+  '\\supsetneq': '\\subsetneq',
+  // Membership: the element side faces the reading start.
+  '\\in': '\\ni',
+  '\\ni': '\\in',
+  // Triangle relations.
+  '\\vartriangleleft': '\\vartriangleright',
+  '\\vartriangleright': '\\vartriangleleft',
+  '\\trianglelefteq': '\\trianglerighteq',
+  '\\trianglerighteq': '\\trianglelefteq',
+  // Diagonal strokes.
+  '\\diagup': '\\diagdown',
+  '\\diagdown': '\\diagup',
 };
 
 /**
@@ -68,6 +106,23 @@ const ARROW_MIRRORS: Record<string, string> = {
   '\\mapsfrom': '\\mapsto',
   '\\rightleftharpoons': '\\leftrightharpoons',
   '\\leftrightharpoons': '\\rightleftharpoons',
+  // Diagonal arrows: the head flips between the four quadrants.
+  '\\nearrow': '\\nwarrow',
+  '\\nwarrow': '\\nearrow',
+  '\\searrow': '\\swarrow',
+  '\\swarrow': '\\searrow',
+  // Harpoons.
+  '\\rightharpoonup': '\\leftharpoonup',
+  '\\leftharpoonup': '\\rightharpoonup',
+  '\\rightharpoondown': '\\leftharpoondown',
+  '\\leftharpoondown': '\\rightharpoondown',
+  // Long / double / hooked / looped / two-headed variants.
+  '\\Rrightarrow': '\\Lleftarrow',
+  '\\Lleftarrow': '\\Rrightarrow',
+  '\\twoheadrightarrow': '\\twoheadleftarrow',
+  '\\twoheadleftarrow': '\\twoheadrightarrow',
+  '\\looparrowright': '\\looparrowleft',
+  '\\looparrowleft': '\\looparrowright',
 };
 
 /**

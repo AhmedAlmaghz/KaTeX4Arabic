@@ -12,6 +12,7 @@ import {
   translateAll,
   FUNCTION_MAP,
   VARIABLE_MAP,
+  DIFFERENTIAL_PATTERNS,
 } from '../arabicFunctions';
 
 describe('translateFunctions', () => {
@@ -138,5 +139,46 @@ describe('dictionaries', () => {
     expect(VARIABLE_MAP.x).toBe('س');
     expect(VARIABLE_MAP.y).toBe('ص');
     expect(VARIABLE_MAP.z).toBe('ع');
+  });
+
+  it('covers u/v/w in both cases so differentials never leak Latin', () => {
+    expect(VARIABLE_MAP.u).toBe('ث');
+    expect(VARIABLE_MAP.v).toBe('ڤ');
+    expect(VARIABLE_MAP.w).toBe('و');
+    expect(VARIABLE_MAP.U).toBe('ث');
+    expect(VARIABLE_MAP.V).toBe('ڤ');
+    expect(VARIABLE_MAP.W).toBe('و');
+  });
+
+  it('translates \\exp like the other KaTeX builtin operators', () => {
+    expect(translateFunctions('\\exp(x)')).toContain('أس');
+  });
+
+  it('names liminf and limsup distinctly (أدنى / أعلى)', () => {
+    const inf = translateFunctions('\\liminf a_n');
+    const sup = translateFunctions('\\limsup a_n');
+    expect(inf).toContain('أدنى');
+    expect(sup).toContain('أعلى');
+    expect(inf).not.toBe(sup);
+  });
+
+  it('translates du and dv into fully Arabic differentials', () => {
+    expect(translateDifferentials('du')).toBe('\\text{د}\\text{ث}');
+    expect(translateDifferentials('dv')).toBe('\\text{د}\\text{ڤ}');
+    expect(translateDifferentials('dt')).toBe('\\text{د}\\text{ت}');
+    expect(translateDifferentials('ds')).toBe('\\text{د}\\text{ز}');
+  });
+
+  it('translates more Greek differentials (d\\lambda, d\\mu)', () => {
+    expect(translateDifferentials('d\\lambda')).toBe('\\text{د}\\lambda');
+    expect(translateDifferentials('d\\mu')).toBe('\\text{د}\\mu');
+    expect(translateDifferentials('d\\vartheta')).toBe('\\text{د}\\vartheta');
+  });
+
+  it('keeps DIFFERENTIAL_PATTERNS consistent with VARIABLE_MAP', () => {
+    for (const [key, value] of Object.entries(DIFFERENTIAL_PATTERNS)) {
+      const letter = key.slice(1);
+      expect(value).toBe(`\\text{د}\\text{${VARIABLE_MAP[letter]}}`);
+    }
   });
 });

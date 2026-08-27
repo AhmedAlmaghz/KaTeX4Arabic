@@ -45,6 +45,20 @@ describe('processLatex', () => {
     const result = processLatex('\\sin(x)', { translateFuncs: false });
     expect(result).toBe('\\sin(\\text{س})');
   });
+
+  it('leaves TeX dimension literals untouched (units guard)', () => {
+    // \\hspace{5pt} is a size, not math content — converting the digits
+    // would corrupt the dimension ("Invalid size" in KaTeX).
+    const result = processLatex('\\hspace{5pt}');
+    expect(result).toContain('5pt');
+    expect(result).not.toContain('٥pt');
+  });
+
+  it('still converts digits inside bracketed intervals', () => {
+    const result = processLatex('x \\in [0, 1]');
+    expect(result).toContain('٠');
+    expect(result).toContain('١');
+  });
 });
 
 describe('renderArabicToString', () => {
@@ -76,6 +90,26 @@ describe('renderArabicToString', () => {
   it('embeds the operatorScale as a CSS variable on the wrapper', () => {
     const html = renderArabicToString('\\sin(x)', { operatorScale: 1.08 });
     expect(html).toContain('--ka-op-scale:1.08');
+  });
+
+  it('renders \\pmod with its Arabic name and preserved argument', () => {
+    const html = renderArabicToString('a \\pmod{4}');
+    expect(html).toContain('باقي');
+    // The Latin operator name must be gone ("mode" in full-rtl-mode is
+    // a class name, not rendered text, hence the tag-bounded check).
+    expect(html).not.toMatch(/>mod</);
+    // The parenthesized argument form survives: (باقي …).
+    expect(html).toContain('mopen');
+    expect(html).toContain('mclose');
+  });
+
+  it('exposes the Arabic-first font stack through --ka-font-family', () => {
+    const html = renderArabicToString('x = 1');
+    expect(html).toContain('--ka-font-family:');
+    expect(html).toContain("'Amiri'");
+    // The robust fallback chain survives the inline override.
+    expect(html).toContain('Noto Naskh Arabic');
+    expect(html).toContain('KaTeX_Main');
   });
 
   it('mirrors operators but protects prose inside \\text{…}', () => {

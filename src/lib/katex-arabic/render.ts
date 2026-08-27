@@ -15,6 +15,8 @@ import {
   getArabicMacros,
   wrapWithArabicStyles,
   resolveOptions,
+  detectStructuralClass,
+  buildFontStack,
   renderCache,
   buildCacheKey,
 } from './rtlRenderer';
@@ -70,6 +72,11 @@ export function renderArabicWithMeta(
 
   const processedLatex = processArabicLatex(latex, opts);
 
+  // Structural classes (e.g. has-cases for piecewise definitions) are
+  // derived from the processed LaTeX and scoped on the wrapper so the
+  // stylesheet can apply layout-specific RTL rules.
+  const structuralClass = detectStructuralClass(processedLatex);
+
   try {
     const html = katex.renderToString(processedLatex, {
       displayMode: opts.displayMode,
@@ -83,7 +90,7 @@ export function renderArabicWithMeta(
         ...(opts.macros ?? {}),
       },
     });
-    const wrapped = wrapWithArabicStyles(html, opts);
+    const wrapped = wrapWithArabicStyles(html, opts, structuralClass);
     renderCache.set(cacheKey, wrapped);
     return { html: wrapped, error: null };
   } catch (error) {
@@ -187,7 +194,9 @@ function applyDomStyles(element: HTMLElement, options: PartialArabicOptions): vo
   const katexEl = element.querySelector('.katex') as HTMLElement | null;
   if (katexEl) {
     katexEl.setAttribute('dir', opts.direction);
-    katexEl.style.fontFamily = `'${opts.fontFamily}', 'KaTeX_Main', serif`;
+    // Keep the CSS variable as the single source of truth for the font
+    // chain so runtime styling matches the stylesheet and the wrapper.
+    katexEl.style.setProperty('--ka-font-family', buildFontStack(opts.fontFamily));
     katexEl.style.direction = opts.direction;
   }
 }

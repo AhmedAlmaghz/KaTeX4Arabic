@@ -26,6 +26,24 @@ describe('applyMirroredSymbols', () => {
     expect(applyMirroredSymbols('a \\rightarrow b', true)).toBe('a \\leftarrow b');
   });
 
+  it('mirrors set relations both ways', () => {
+    expect(applyMirroredSymbols('A \\subset B', true)).toBe('A \\supset B');
+    expect(applyMirroredSymbols('A \\supset B', true)).toBe('A \\subset B');
+    expect(applyMirroredSymbols('A \\subseteq B', true)).toBe('A \\supseteq B');
+    expect(applyMirroredSymbols('x \\in S', true)).toBe('x \\ni S');
+    expect(applyMirroredSymbols('S \\ni x', true)).toBe('S \\in x');
+  });
+
+  it('mirrors predecessor/successor relations', () => {
+    expect(applyMirroredSymbols('a \\prec b', true)).toBe('a \\succ b');
+    expect(applyMirroredSymbols('a \\preceq b', true)).toBe('a \\succeq b');
+  });
+
+  it('mirrors diagonal arrows', () => {
+    expect(applyMirroredSymbols('a \\nearrow b', true)).toBe('a \\nwarrow b');
+    expect(applyMirroredSymbols('a \\searrow b', true)).toBe('a \\swarrow b');
+  });
+
   it('does not ping-pong longer/shorter variants', () => {
     // \longrightarrow should become \longleftarrow, NOT cycle back
     const result = applyMirroredSymbols('a \\longrightarrow b', true);
@@ -67,5 +85,17 @@ describe('MIRRORED_SYMBOLS dictionary', () => {
   it('contains brackets', () => {
     expect(MIRRORED_SYMBOLS['\\lbrace']).toBe('\\rbrace');
     expect(MIRRORED_SYMBOLS['\\langle']).toBe('\\rangle');
+  });
+
+  it('mirrors every entry back to itself (involution)', () => {
+    for (const [key, value] of Object.entries(MIRRORED_SYMBOLS)) {
+      expect(MIRRORED_SYMBOLS[value]).toBe(key);
+    }
+  });
+
+  it('contains set and membership relations', () => {
+    expect(MIRRORED_SYMBOLS['\\subset']).toBe('\\supset');
+    expect(MIRRORED_SYMBOLS['\\subseteq']).toBe('\\supseteq');
+    expect(MIRRORED_SYMBOLS['\\in']).toBe('\\ni');
   });
 });

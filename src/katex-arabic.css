@@ -177,18 +177,20 @@
   unicode-bidi: isolate;
 }
 
-/* ─── Integral upper-bound nudge ─────────────────────────────
-   In some mirrored / tight layouts the upper (superscript) bound of a
+/* ─── Integral upper-bound nudge (RTL only) ──────────────────
+   In the mirrored / full-RTL layout the upper (superscript) bound of a
    big operator (∫ ∮ ∬ — and any bound that KaTeX stacks via .msupsub
    instead of .op-limits) sits a little to the right of where it should
    sit relative to the operator's two tips. This shifts ONLY that upper
-   bound 5px to the left. It is a GPU-composited, purely-visual
-   transform: the row is `.vlist>span { display:block; position:relative;
-   height:0 }`, so translateX does not alter KaTeX's computed top /
-   margin offsets that place the lower bound and the glyph. Make it
-   tunable (or disable, set to 0) from the wrapper:
-       .math-equation { --ka-upper-limit-shift: -5px; }  */
-.katex-arabic .katex .mop:not(.op-limits):has(> .op-symbol) .msupsub
+   bound 5px to the left. It is scoped to .full-rtl-mode so an explicit
+   LTR rendering keeps KaTeX's own placement untouched. It is a
+   GPU-composited, purely-visual transform: the row is
+   `.vlist>span { display:block; position:relative; height:0 }`, so
+   translateX does not alter KaTeX's computed top / margin offsets that
+   place the lower bound and the glyph. Make it tunable (or disable,
+   set to 0) from the wrapper:
+        .math-equation { --ka-upper-limit-shift: -5px; }  */
+.katex-arabic.full-rtl-mode .katex .mop:not(.op-limits):has(> .op-symbol) .msupsub
   .vlist-r:first-child .vlist > span:last-child {
   transform:
     translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
@@ -272,6 +274,33 @@
        is already applied at the LaTeX level, so no DOM mirror needed. */
 .katex-arabic.mirror-symbols .katex {
   /* No additional transforms — mirroring happens in processArabicLatex */
+}
+
+/* ─── Piecewise definitions (cases): Arabic layout ──────────
+   \begin{cases} is a piecewise definition, not an ordinary array:
+   in the Arabic convention the brace sits on the READING START
+   (right) side with the values adjacent to it. Under full RTL mode
+   the .base already reorders the atoms, so the only work needed
+   here is: (1) lay the two columns out right-to-left so the value
+   column ends up next to the brace, (2) mirror the brace glyph
+   itself so its open side faces the content, and (3) right-align
+   the cell contents toward the brace, matching Arabic typography. */
+.katex-arabic.has-cases .katex .mtable {
+  direction: rtl;
+}
+
+.katex-arabic.has-cases .katex .mopen.delimcenter > .delimsizing,
+.katex-arabic.has-cases .katex .delim-size1 > span,
+.katex-arabic.has-cases .katex .delim-size4 > span {
+  display: inline-block;
+  transform: var(--ka-mirror-transform);
+  -webkit-transform: var(--ka-mirror-transform);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.katex-arabic.has-cases .katex .mtable .col-align-l > .vlist-t > .vlist-r > .vlist > span {
+  text-align: right;
 }
 
 /* ═══════════════════════════════════════════════════════════════
