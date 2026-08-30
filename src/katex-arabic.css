@@ -289,6 +289,20 @@
   direction: rtl;
 }
 
+/* The brace glyph ({, U+007B) carries the Unicode Bidi_Mirrored
+   property. Under full RTL mode — with an all-Arabic context — the
+   browser's bidi algorithm mirrors it to a "}" shape BEFORE our CSS
+   can act; the scaleX(-1) rule below then flips it back, so the brace
+   ended up looking Latin again (double mirror). Isolating the
+   delimiter container as an LTR unit makes the browser render the
+   source glyph verbatim, leaving the CSS mirror below as the single,
+   deterministic flip that produces the Arabic brace shape. */
+.katex-arabic.has-cases .katex .mopen.delimcenter,
+.katex-arabic.has-cases .katex .mclose.delimcenter {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 .katex-arabic.has-cases .katex .mopen.delimcenter > .delimsizing,
 .katex-arabic.has-cases .katex .delim-size1 > span,
 .katex-arabic.has-cases .katex .delim-size4 > span {

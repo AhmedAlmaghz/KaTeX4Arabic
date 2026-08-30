@@ -129,7 +129,7 @@ KaTeXArabic.render('\\int_0^1 x^2 dx', element);
 KaTeXArabic.toArabicNumerals('123');            // '١٢٣'
 KaTeXArabic.translateFunctions('sin');           // 'جا'
 KaTeXArabic.resolveOptions({});                  // الخيارات الافتراضية
-KaTeXArabic.VERSION;                             // '1.1.4'
+KaTeXArabic.VERSION;                             // '1.1.5'
 ```
 
 ---
