@@ -279,8 +279,39 @@ const DIFFERENTIAL_PATTERNS = Object.fromEntries(
     `\\text{د}\\text{${VARIABLE_MAP[letter] ?? letter}}`
   ])
 );
-function escapeRegex$1(input) {
-  return input.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
+const TEX_DIMENSION_UNITS = /* @__PURE__ */ new Set([
+  "pt",
+  "mm",
+  "cm",
+  "in",
+  "ex",
+  "em",
+  "mu",
+  "px",
+  "pc",
+  "bp",
+  "dd",
+  "cc",
+  "nd",
+  "nc",
+  "sp"
+]);
+function findMatchingBrace(latex, open) {
+  let depth = 0;
+  for (let k = open; k < latex.length; k++) {
+    const c = latex[k];
+    if (c === "\\") {
+      k++;
+      continue;
+    }
+    if (c === "{") {
+      depth++;
+    } else if (c === "}") {
+      depth--;
+      if (depth === 0) return k + 1;
+    }
+  }
+  return latex.length;
 }
 function translateFunctions(latex, customMap = {}) {
   const merged = { ...FUNCTION_MAP, ...customMap };
@@ -330,19 +361,73 @@ function translateDifferentials(latex) {
 }
 function translateVariables(latex, customMap = {}) {
   const merged = { ...VARIABLE_MAP, ...customMap };
-  const keys = Object.keys(merged);
-  if (keys.length === 0) return latex;
-  const sorted = keys.sort((a, b) => b.length - a.length);
+  const sortedKeys = Object.keys(merged).filter((key) => key.length > 0).sort((a, b) => b.length - a.length);
   const protectedRegions = collectProtectedRegions(latex);
-  const pattern = new RegExp(
-    `(?<![A-Za-z\\\\])(${sorted.map(escapeRegex$1).join("|")})(?![A-Za-z])`,
-    "g"
-  );
-  return latex.replace(pattern, (match, _p1, offset, _string) => {
-    const pos = Number(offset);
-    if (isInsideRegions(pos, protectedRegions)) return match;
-    return `\\text{${merged[match]}}`;
-  });
+  let result = "";
+  let i = 0;
+  while (i < latex.length) {
+    const ch = latex[i];
+    if (ch === "\\" && i + 1 < latex.length && /[a-zA-Z]/.test(latex[i + 1])) {
+      let j = i + 1;
+      while (j < latex.length && /[a-zA-Z]/.test(latex[j])) {
+        j++;
+      }
+      const command = latex.slice(i + 1, j);
+      if (command === "begin" || command === "end") {
+        let k = j;
+        while (k < latex.length && /\s/.test(latex[k])) {
+          k++;
+        }
+        if (latex[k] === "{") {
+          const groupEnd = findMatchingBrace(latex, k);
+          result += latex.slice(i, groupEnd);
+          i = groupEnd;
+          const envName = latex.slice(k + 1, groupEnd - 1);
+          if (command === "begin" && (envName === "array" || envName === "darray" || envName === "subarray")) {
+            let s = i;
+            while (s < latex.length && /\s/.test(latex[s])) {
+              s++;
+            }
+            if (latex[s] === "{") {
+              const specEnd = findMatchingBrace(latex, s);
+              result += latex.slice(i, specEnd);
+              i = specEnd;
+            }
+          }
+          continue;
+        }
+      }
+      result += latex.slice(i, j);
+      i = j;
+      continue;
+    }
+    if (/[a-zA-Z]/.test(ch) && i > 0 && /[0-9]/.test(latex[i - 1])) {
+      let j = i;
+      while (j < latex.length && /[a-zA-Z]/.test(latex[j])) {
+        j++;
+      }
+      if (TEX_DIMENSION_UNITS.has(latex.slice(i, j))) {
+        result += latex.slice(i, j);
+        i = j;
+        continue;
+      }
+    }
+    if (!isInsideRegions(i, protectedRegions)) {
+      let matched = false;
+      for (const key of sortedKeys) {
+        if (latex.startsWith(key, i)) {
+          result += `\\text{${merged[key]}}`;
+          i += key.length;
+          matched = true;
+          break;
+        }
+      }
+      if (matched) continue;
+    }
+    result += ch;
+    i++;
+  }
+  return result;
 }
 function translateSpecialPatterns(latex) {
   return translateDifferentials(latex);
@@ -472,6 +557,29 @@ const BRACKET_MIRRORS = {
   "\\lbrack": "\\rbrack",
   "\\rbrack": "\\lbrack"
 };
+const UNICODE_SYMBOL_MIRRORS = {
+  // Membership and subset relations: the open side of the symbol
+  // should face the reading start (right) in RTL, like the commands.
+  "∈": "∋",
+  "∋": "∈",
+  "∉": "∌",
+  "∌": "∉",
+  "⊂": "⊃",
+  "⊃": "⊂",
+  "⊆": "⊇",
+  "⊇": "⊆",
+  "⊊": "⊋",
+  "⊋": "⊊",
+  // Arrows typed as literal characters.
+  "←": "→",
+  "→": "←",
+  "⇐": "⇒",
+  "⇒": "⇐",
+  "⟵": "⟶",
+  "⟶": "⟵",
+  "⟸": "⟹",
+  "⟹": "⟸"
+};
 const BIG_OP_MIRRORS = {
   "\\sum": "\\sum",
   // mirrored via CSS
@@ -487,11 +595,13 @@ const MIRRORED_SYMBOLS = {
   ...COMPARISON_MIRRORS,
   ...ARROW_MIRRORS,
   ...BRACKET_MIRRORS,
+  ...UNICODE_SYMBOL_MIRRORS,
   ...BIG_OP_MIRRORS
 };
 const COMPARISON_SYMBOLS = COMPARISON_MIRRORS;
 const ARROW_SYMBOLS = ARROW_MIRRORS;
 const BRACKET_SYMBOLS = BRACKET_MIRRORS;
+const UNICODE_SYMBOLS = UNICODE_SYMBOL_MIRRORS;
 const ARABIC_MATH_UNICODE = {
   alef: "𞸀",
   ba: "𞸁",
@@ -876,6 +986,7 @@ exports.GREEK_MAP = GREEK_MAP;
 exports.MAX_INPUT_LENGTH = MAX_INPUT_LENGTH;
 exports.MIRRORED_SYMBOLS = MIRRORED_SYMBOLS;
 exports.SPECIAL_ARABIC_SYMBOLS = SPECIAL_ARABIC_SYMBOLS;
+exports.UNICODE_SYMBOLS = UNICODE_SYMBOLS;
 exports.VARIABLE_MAP = VARIABLE_MAP;
 exports.applyMirroredSymbols = applyMirroredSymbols;
 exports.buildCssClasses = buildCssClasses;

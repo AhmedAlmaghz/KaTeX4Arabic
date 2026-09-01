@@ -10,8 +10,11 @@
  *     except for the VARIABLE_MAP which uses single letters.
  *   - Translations never mutate the input. Each function returns
  *     a new string.
- *   - Regex safety: the `escapeRegex` helper protects against
- *     special characters in keys when building dynamic patterns.
+ *   - Variable translation uses a single token-aware scan (no regex):
+ *     adjacent letters ("ac" in "4ac") are translated independently,
+ *     multi-character custom keys win by longest match, and LaTeX
+ *     identifiers — command names, \begin{…}/\end{…} environment
+ *     names, and dimension units after digits — pass through verbatim.
  * ════════════════════════════════════════════════════════════════
  */
 /**
@@ -59,14 +62,25 @@ export declare function translateDifferentials(latex: string): string;
  * and \\operatorname names. We pre-compute the "protected" regions once
  * and run a single combined pass so that no offset ever shifts.
  *
- * Implementation note: the pattern has exactly one capture group, so the
- * `replace` callback is `(match, p1, offset, string)` — `offset` is the
- * **third** argument.
+ * The scan is token-aware, in this order:
+ *   1. `\\command` names are copied verbatim — they are never variables.
+ *      The \\begin{…} / \\end{…} environment name (and, for array-style
+ *      environments, the column-specification group that follows) is an
+ *      identifier too, so it is copied through its closing brace.
+ *   2. A letter run glued directly to a preceding digit run is a TeX
+ *      dimension unit (5pt, 1.5em, 2cm, …) — a size literal like
+ *      `\\hspace{5pt}`, not math content — and is emitted verbatim,
+ *      mirroring the units guard in rtlRenderer.ts so the numeral stage
+ *      keeps the whole dimension intact.
+ *   3. Otherwise the longest key in the merged map wins: adjacent
+ *      letters ("ac" in "4ac") still translate independently, while a
+ *      multi-character custom key ("ab") beats the single letters
+ *      "a" / "b" at the same position.
  */
 export declare function translateVariables(latex: string, customMap?: Record<string, string>): string;
 /**
- * Translate `d\theta` and other named Greek differentials to Arabic.
- * Used by the differential pipeline; exposed for completeness.
+ * Translate special patterns like differentials (dx, dθ) to Arabic.
+ * Kept as a thin wrapper for API compatibility.
  */
 export declare function translateSpecialPatterns(latex: string): string;
 /**

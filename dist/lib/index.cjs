@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const render = require("./render.cjs");
-const VERSION = "1.1.4";
+const VERSION = "1.1.5";
 const KaTeXArabic = {
   // ─── Rendering ───────────────────────────────────────────
   render: render.renderArabic,
@@ -45,6 +45,7 @@ exports.GREEK_MAP = render.GREEK_MAP;
 exports.MAX_INPUT_LENGTH = render.MAX_INPUT_LENGTH;
 exports.MIRRORED_SYMBOLS = render.MIRRORED_SYMBOLS;
 exports.SPECIAL_ARABIC_SYMBOLS = render.SPECIAL_ARABIC_SYMBOLS;
+exports.UNICODE_SYMBOLS = render.UNICODE_SYMBOLS;
 exports.VARIABLE_MAP = render.VARIABLE_MAP;
 exports.applyMirroredSymbols = render.applyMirroredSymbols;
 exports.buildCssClasses = render.buildCssClasses;

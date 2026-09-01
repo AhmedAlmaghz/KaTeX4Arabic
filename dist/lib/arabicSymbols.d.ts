@@ -23,6 +23,7 @@ export declare const MIRRORED_SYMBOLS: Record<string, string>;
 export declare const COMPARISON_SYMBOLS: Record<string, string>;
 export declare const ARROW_SYMBOLS: Record<string, string>;
 export declare const BRACKET_SYMBOLS: Record<string, string>;
+export declare const UNICODE_SYMBOLS: Record<string, string>;
 /**
  * The Unicode "Arabic Mathematical Alphabet" provides isolated-form
  * Arabic letters optimized for math typesetting. These are *not*
