@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ════════════════════════════════════════════════════════════════
  *  arabicFunctions.ts
  *  Comprehensive translation dictionaries and transforms that
@@ -10,8 +10,11 @@
  *     except for the VARIABLE_MAP which uses single letters.
  *   - Translations never mutate the input. Each function returns
  *     a new string.
- *   - Regex safety: the `escapeRegex` helper protects against
- *     special characters in keys when building dynamic patterns.
+ *   - Variable translation uses a single token-aware scan (no regex):
+ *     adjacent letters ("ac" in "4ac") are translated independently,
+ *     multi-character custom keys win by longest match, and LaTeX
+ *     identifiers — command names, \begin{…}/\end{…} environment
+ *     names, and dimension units after digits — pass through verbatim.
  * ════════════════════════════════════════════════════════════════
  */
 
@@ -239,11 +242,39 @@ export const DIFFERENTIAL_PATTERNS: Record<string, string> = Object.fromEntries(
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Escape a string for safe use in a RegExp pattern.
- * Escapes: \ ^ $ * + ? . ( ) | { } [ ]
+ * TeX dimension units. A letter run glued directly to a digit run
+ * (5pt, 2em, 1.5cm, …) is a size literal — e.g. `\hspace{5pt}` or
+ * `\rule{2cm}` — not math content. The set mirrors TEX_UNIT_PATTERN
+ * in rtlRenderer.ts so both pipeline layers agree on what a
+ * dimension literal is.
  */
-function escapeRegex(input: string): string {
-  return input.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
+const TEX_DIMENSION_UNITS = new Set([
+  'pt', 'mm', 'cm', 'in', 'ex', 'em', 'mu', 'px', 'pc',
+  'bp', 'dd', 'cc', 'nd', 'nc', 'sp',
+]);
+
+/**
+ * Return the index one past the `}` that closes the group whose `{`
+ * sits at `open`. Escaped braces (`\{`, `\}`) are skipped. If the
+ * group is never closed, the end of the string is returned so callers
+ * simply copy the remainder verbatim.
+ */
+function findMatchingBrace(latex: string, open: number): number {
+  let depth = 0;
+  for (let k = open; k < latex.length; k++) {
+    const c = latex[k];
+    if (c === '\\') {
+      k++; // skip the escaped character after the backslash
+      continue;
+    }
+    if (c === '{') {
+      depth++;
+    } else if (c === '}') {
+      depth--;
+      if (depth === 0) return k + 1;
+    }
+  }
+  return latex.length;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -343,39 +374,129 @@ export function translateDifferentials(latex: string): string {
  * and \\operatorname names. We pre-compute the "protected" regions once
  * and run a single combined pass so that no offset ever shifts.
  *
- * Implementation note: the pattern has exactly one capture group, so the
- * `replace` callback is `(match, p1, offset, string)` — `offset` is the
- * **third** argument.
+ * The scan is token-aware, in this order:
+ *   1. `\\command` names are copied verbatim — they are never variables.
+ *      The \\begin{…} / \\end{…} environment name (and, for array-style
+ *      environments, the column-specification group that follows) is an
+ *      identifier too, so it is copied through its closing brace.
+ *   2. A letter run glued directly to a preceding digit run is a TeX
+ *      dimension unit (5pt, 1.5em, 2cm, …) — a size literal like
+ *      `\\hspace{5pt}`, not math content — and is emitted verbatim,
+ *      mirroring the units guard in rtlRenderer.ts so the numeral stage
+ *      keeps the whole dimension intact.
+ *   3. Otherwise the longest key in the merged map wins: adjacent
+ *      letters ("ac" in "4ac") still translate independently, while a
+ *      multi-character custom key ("ab") beats the single letters
+ *      "a" / "b" at the same position.
  */
 export function translateVariables(
   latex: string,
   customMap: Record<string, string> = {},
 ): string {
   const merged = { ...VARIABLE_MAP, ...customMap };
-  const keys = Object.keys(merged);
-  if (keys.length === 0) return latex;
-
-  // Longest-first so a multi-character custom key beats single letters.
-  const sorted = keys.sort((a, b) => b.length - a.length);
+  // Longest first so multi-character custom keys win over the
+  // single-letter entries at the same position. Empty keys are dropped:
+  // they would match everywhere and never advance the cursor.
+  const sortedKeys = Object.keys(merged)
+    .filter((key) => key.length > 0)
+    .sort((a, b) => b.length - a.length);
   const protectedRegions = collectProtectedRegions(latex);
 
-  // A variable is a Latin letter (or custom key) that is not surrounded
-  // by other Latin letters or a backslash, so command names are untouched.
-  const pattern = new RegExp(
-    `(?<![A-Za-z\\\\])(${sorted.map(escapeRegex).join('|')})(?![A-Za-z])`,
-    'g',
-  );
+  let result = '';
+  let i = 0;
+  while (i < latex.length) {
+    const ch = latex[i];
 
-  return latex.replace(pattern, (match, _p1, offset, _string) => {
-    const pos = Number(offset);
-    if (isInsideRegions(pos, protectedRegions)) return match;
-    return `\\text{${merged[match as string] as string}}`;
-  });
+    // ── 1. LaTeX commands: `\name` is never a variable. ──────────
+    if (ch === '\\' && i + 1 < latex.length && /[a-zA-Z]/.test(latex[i + 1])) {
+      let j = i + 1;
+      while (j < latex.length && /[a-zA-Z]/.test(latex[j])) {
+        j++;
+      }
+      const command = latex.slice(i + 1, j);
+
+      // Environment names (\begin{cases}, \end{pmatrix}, …) are
+      // identifiers: copy the whole brace group verbatim, otherwise
+      // "cases" would turn into Arabic letters and KaTeX would reject
+      // the environment name.
+      if (command === 'begin' || command === 'end') {
+        // KaTeX's lexer skips whitespace between the control word and
+        // its argument, so `\begin {cases}` is legal LaTeX too.
+        let k = j;
+        while (k < latex.length && /\s/.test(latex[k])) {
+          k++;
+        }
+        if (latex[k] === '{') {
+          const groupEnd = findMatchingBrace(latex, k);
+          result += latex.slice(i, groupEnd);
+          i = groupEnd;
+
+          // `\begin{array}`-style environments take a column-spec
+          // group ({cc|l}, …) right after the name. That group is an
+          // identifier block too, so copy it verbatim when present.
+          const envName = latex.slice(k + 1, groupEnd - 1);
+          if (
+            command === 'begin' &&
+            (envName === 'array' || envName === 'darray' || envName === 'subarray')
+          ) {
+            let s = i;
+            while (s < latex.length && /\s/.test(latex[s])) {
+              s++;
+            }
+            if (latex[s] === '{') {
+              const specEnd = findMatchingBrace(latex, s);
+              result += latex.slice(i, specEnd);
+              i = specEnd;
+            }
+          }
+          continue;
+        }
+      }
+
+      result += latex.slice(i, j);
+      i = j;
+      continue;
+    }
+
+    // ── 2. Dimension units: a letter run glued to a digit run. ──
+    if (/[a-zA-Z]/.test(ch) && i > 0 && /[0-9]/.test(latex[i - 1])) {
+      let j = i;
+      while (j < latex.length && /[a-zA-Z]/.test(latex[j])) {
+        j++;
+      }
+      if (TEX_DIMENSION_UNITS.has(latex.slice(i, j))) {
+        result += latex.slice(i, j);
+        i = j;
+        continue;
+      }
+    }
+
+    // ── 3. Variable keys, longest first, outside protected regions. ──
+    // Adjacent letters (e.g. "ac" in "4ac") are translated
+    // independently — the scan walks the *input*, so offsets never
+    // shift mid-pass.
+    if (!isInsideRegions(i, protectedRegions)) {
+      let matched = false;
+      for (const key of sortedKeys) {
+        if (latex.startsWith(key, i)) {
+          result += `\\text{${merged[key] as string}}`;
+          i += key.length;
+          matched = true;
+          break;
+        }
+      }
+      if (matched) continue;
+    }
+
+    result += ch;
+    i++;
+  }
+  return result;
 }
 
 /**
- * Translate `d\theta` and other named Greek differentials to Arabic.
- * Used by the differential pipeline; exposed for completeness.
+ * Translate special patterns like differentials (dx, dθ) to Arabic.
+ * Kept as a thin wrapper for API compatibility.
  */
 export function translateSpecialPatterns(latex: string): string {
   return translateDifferentials(latex);

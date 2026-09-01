@@ -230,38 +230,66 @@
 }
 
 /* ─── Square root sign ───────────────────────────────────── */
-/* Mirror the radical sign for RTL: flip the whole .sqrt container
-   (this moves the vertical bar to the reading-start side and places
-   the radicand under the overline), then counter-flip ONLY the
-   readable content — the radicand cell and any n-th root — so the
-   text itself stays upright. Without the container flip the bar
-   stays on the wrong (left) side; without the counter-flip the
-   radicand would be mirrored. */
+/* Arabic radical: the vertical stroke sits on the READING START
+   (right) side and the radicand reads right-to-left under the
+   overline.
+
+   Instead of flipping the whole .sqrt container — which mirrors
+   every nested glyph, reads multi-term radicands backwards, and
+   needs fragile per-depth counter-flips — we flip ONLY the radical
+   glyph and let CSS direction do the rest:
+
+   • `direction: rtl` on the container: the radicand's inline
+     children read RTL at every nesting depth, and the n-th root
+     index (a direct child placed before the body vlist) lands on
+     the RIGHT of the sign, as Arabic typesetting expects.
+   • `scaleX(-1)` on .hide-tail: the radical SVG spans the full
+     width of its row (the overbar covers the whole radicand), so
+     mirroring it about its own centre moves the stroke from the
+     left edge to the right edge while the bar stays on top. Each
+     .sqrt owns exactly one .hide-tail, so every radical at any
+     nesting depth receives exactly ONE flip — nesting composes
+     for free.
+   • KaTeX hardcodes the sign→radicand gap as an INLINE
+     `padding-left` on the radicand wrapper. Under RTL the gap must
+     sit on the right (stroke) side, so swap it: padding-left: 0,
+     padding-right on the stroke side (same 0.833em reference gap).
+     !important is required to beat the inline style. */
 .katex-arabic.mirror-sqrt .katex .sqrt {
   display: inline-block;
-  transform: var(--ka-mirror-transform) translateZ(0);
-  transform-origin: center;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  /* A CSS transform does not change layout, so the mirrored radical
-     (bar now on the reading-start side) can collide with the symbol
-     that precedes it. Reserve small horizontal margins on both
-     reading sides so the flipped sign never touches its neighbours. */
+  direction: rtl;
   margin-inline: 0.15em;
 }
 
-/* Counter-flip the readable content so the radicand and any n-th root
-   index stay upright after the container flip. These selectors target
-   the exact KaTeX internal nodes that hold readable glyphs; the GPU
-   compositing hints (translateZ(0) + backface-visibility) prevent
-   sub-pixel flicker on the flipped content. */
-.katex-arabic.mirror-sqrt .katex .sqrt>.vlist-t>.vlist-r>.vlist>span:first-child,
-.katex-arabic.mirror-sqrt .katex .sqrt .katex-root,
-.katex-arabic.mirror-sqrt .katex .sqrt .root {
+/* Mirror the radical glyph itself. .hide-tail is block-level
+   (overflow: hidden blockifies it) and full-width, so this is a
+   pure, predictable mirror of the stroke + bar. The GPU hints
+   prevent sub-pixel flicker on the flipped glyph. */
+.katex-arabic.mirror-sqrt .katex .sqrt .hide-tail {
   transform: var(--ka-mirror-transform) translateZ(0);
+  -webkit-transform: var(--ka-mirror-transform) translateZ(0);
+  -moz-transform: var(--ka-mirror-transform) translateZ(0);
   transform-origin: center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* Move the sign→radicand gap from the left side to the right
+   (stroke) side. The radicand wrapper is the only non-pstrut child
+   of the .svg-align row and carries KaTeX's inline padding-left. */
+.katex-arabic.mirror-sqrt .katex .sqrt .svg-align > span:not(.pstrut) {
+  padding-left: 0 !important;
+  padding-right: 0.833em !important;
+}
+
+/* n-th root index: KaTeX spaces it for LTR (margin-left gap, plus a
+   negative margin-right that pulls the body over the index). In RTL
+   the index sits to the RIGHT of the stroke, and KaTeX's 0.2777em
+   margin-left now falls on the stroke side where the gap belongs —
+   only the negative outer margin must go, or the index would hang
+   past the container's right edge. */
+.katex-arabic.mirror-sqrt .katex .sqrt > .katex-root {
+  margin-right: 0;
 }
 
 /* ─── Brackets: swap opening and closing pairs visually ──── */
@@ -315,6 +343,65 @@
 
 .katex-arabic.has-cases .katex .mtable .col-align-l > .vlist-t > .vlist-r > .vlist > span {
   text-align: right;
+}
+
+/* ─── Matrices & arrays: RTL columns ────────────────────────
+   KaTeX lays the columns of {matrix}/{pmatrix}/{vmatrix}/{array}
+   left-to-right. The Arabic convention reads the columns from right
+   to left, so under full-rtl-mode the .mtable switches to
+   direction: rtl — the inline column cells reorder (first column on
+   the right), the separators between columns follow, and the content
+   inside each cell reads RTL as well. */
+.katex-arabic.full-rtl-mode .katex .mtable {
+  direction: rtl;
+}
+
+/* Matrix delimiters: KaTeX renders them OUTSIDE the .mtable (as
+   mopen/mclose siblings under .minner). Give them ONE deterministic
+   mirror instead of relying on the browser's bidi glyph mirroring —
+   which double-mirrors as soon as any CSS flip is also present, and
+   never applies to the stacked piece glyphs of very tall delimiters.
+   Isolate each delimiter as an LTR unit so the source glyph renders
+   verbatim, then flip it so its opening faces the reordered content:
+   the opening delimiter sits on the reading start (right) and the
+   closing one on the left, both curved toward the matrix.
+   Scoped to :not(.has-cases) — piecewise braces manage their own
+   mirroring in the section above. */
+.katex-arabic.full-rtl-mode:not(.has-cases) .katex .delimcenter {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.katex-arabic.full-rtl-mode:not(.has-cases) .katex .delimcenter > .delimsizing {
+  display: inline-block;
+  transform: var(--ka-mirror-transform);
+  -webkit-transform: var(--ka-mirror-transform);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ─── Accents: bar, hat, vec, … over the symbol ─────────────
+   KaTeX positions the accent glyph from the LEFT edge of the base
+   (accent-body carries an inline `left:-w/2` tuned for narrow Latin
+   italics) and collapses the accent-body box to width 0. Arabic
+   glyphs are wider and start further right, so the mark lands tiny
+   at the top-LEFT corner of the symbol. Fix: stretch the accent box
+   over the FULL base width, centre it, and scale the mark up so it
+   matches the glyph it decorates. !important is required to beat
+   KaTeX's `.accent-body { width: 0 }` and the inline `left`. */
+.katex-arabic .katex .katex-accent .accent-body {
+  display: inline-block;
+  width: 100% !important;
+  left: 0 !important;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+/* The vector arrow (\vec) is an SVG inside a fixed-width overlay
+   block; centre that block over the base. Its em-sized box scales
+   with the font-size above, so the arrow grows with the mark. */
+.katex-arabic .katex .katex-accent .accent-body .katex-overlay {
+  margin-inline: auto;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -534,14 +621,15 @@
   padding-inline: 0.04em;
 }
 
-/* 4. Ensure the radical sign (√) and its Arabic radicand don't collide.
-      The mirrored sqrt (bar on the right) needs extra clearance for
-      Arabic text which tends to be wider than Latin. */
-.katex-arabic.mirror-sqrt .katex .sqrt .mord.text,
-.katex-arabic.mirror-sqrt .katex .sqrt .mop:not(.op-symbol) {
-  padding-inline-start: 0.08em;
-  margin-inline-start: 0.8em;
-}
+/* 4. NO extra clearance is needed between the radical sign and its
+      radicand: mirroring is geometric — the container flip relocates
+      KaTeX's own 0.833em padding (padding-left on the radicand
+      wrapper) to the stroke side, preserving the exact reference gap.
+      Do NOT add margins/padding on .mord.text / .mop spans inside
+      .sqrt here: they feed back into KaTeX's shrink-to-fit width and
+      inflate the whole radical box (the overbar grows past the
+      radicand), and inline-direction margins resolve on the wrong
+      physical side for Arabic runs. */
 
 /* 5. Matrix cells with Arabic content. Centre-align horizontally,
       matching Latin matrix behaviour. */

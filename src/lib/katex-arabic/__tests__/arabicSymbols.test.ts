@@ -34,6 +34,22 @@ describe('applyMirroredSymbols', () => {
     expect(applyMirroredSymbols('S \\ni x', true)).toBe('S \\in x');
   });
 
+  it('mirrors unicode set relations typed as literal characters', () => {
+    expect(applyMirroredSymbols('س ∈ م', true)).toBe('س ∋ م');
+    expect(applyMirroredSymbols('م ∋ س', true)).toBe('م ∈ س');
+    expect(applyMirroredSymbols('س ∉ م', true)).toBe('س ∌ م');
+    expect(applyMirroredSymbols('أ ⊂ ب', true)).toBe('أ ⊃ ب');
+    expect(applyMirroredSymbols('أ ⊆ ب', true)).toBe('أ ⊇ ب');
+    expect(applyMirroredSymbols('أ ⊊ ب', true)).toBe('أ ⊋ ب');
+  });
+
+  it('mirrors unicode arrows typed as literal characters', () => {
+    expect(applyMirroredSymbols('أ → ب', true)).toBe('أ ← ب');
+    expect(applyMirroredSymbols('أ ← ب', true)).toBe('أ → ب');
+    expect(applyMirroredSymbols('أ ⇒ ب', true)).toBe('أ ⇐ ب');
+    expect(applyMirroredSymbols('أ ⟶ ب', true)).toBe('أ ⟵ ب');
+  });
+
   it('mirrors predecessor/successor relations', () => {
     expect(applyMirroredSymbols('a \\prec b', true)).toBe('a \\succ b');
     expect(applyMirroredSymbols('a \\preceq b', true)).toBe('a \\succeq b');
@@ -97,5 +113,12 @@ describe('MIRRORED_SYMBOLS dictionary', () => {
     expect(MIRRORED_SYMBOLS['\\subset']).toBe('\\supset');
     expect(MIRRORED_SYMBOLS['\\subseteq']).toBe('\\supseteq');
     expect(MIRRORED_SYMBOLS['\\in']).toBe('\\ni');
+  });
+
+  it('contains unicode set relations', () => {
+    expect(MIRRORED_SYMBOLS['∈']).toBe('∋');
+    expect(MIRRORED_SYMBOLS['∉']).toBe('∌');
+    expect(MIRRORED_SYMBOLS['⊆']).toBe('⊇');
+    expect(MIRRORED_SYMBOLS['→']).toBe('←');
   });
 });

@@ -149,6 +149,37 @@ const BRACKET_MIRRORS: Record<string, string> = {
 };
 
 /**
+ * Unicode literal mirrors. Users often type the *characters*
+ * (∈, ⊆, →, …) directly instead of the LaTeX commands. KaTeX accepts
+ * them, but the command-level tables above never see a command to
+ * swap — so the symbol shows up in its Latin orientation. Map the
+ * mirrored character pairs explicitly (every pair is an involution).
+ */
+const UNICODE_SYMBOL_MIRRORS: Record<string, string> = {
+  // Membership and subset relations: the open side of the symbol
+  // should face the reading start (right) in RTL, like the commands.
+  '∈': '∋',
+  '∋': '∈',
+  '∉': '∌',
+  '∌': '∉',
+  '⊂': '⊃',
+  '⊃': '⊂',
+  '⊆': '⊇',
+  '⊇': '⊆',
+  '⊊': '⊋',
+  '⊋': '⊊',
+  // Arrows typed as literal characters.
+  '←': '→',
+  '→': '←',
+  '⇐': '⇒',
+  '⇒': '⇐',
+  '⟵': '⟶',
+  '⟶': '⟵',
+  '⟸': '⟹',
+  '⟹': '⟸',
+};
+
+/**
  * Big-operator mirroring. KaTeX renders Σ, ∏, ∫ as native glyphs,
  * so this table is mainly a fallback for users who write the
  * commands as plain text outside LaTeX.
@@ -169,6 +200,7 @@ export const MIRRORED_SYMBOLS: Record<string, string> = {
   ...COMPARISON_MIRRORS,
   ...ARROW_MIRRORS,
   ...BRACKET_MIRRORS,
+  ...UNICODE_SYMBOL_MIRRORS,
   ...BIG_OP_MIRRORS,
 };
 
@@ -178,6 +210,7 @@ export const MIRRORED_SYMBOLS: Record<string, string> = {
 export const COMPARISON_SYMBOLS = COMPARISON_MIRRORS;
 export const ARROW_SYMBOLS = ARROW_MIRRORS;
 export const BRACKET_SYMBOLS = BRACKET_MIRRORS;
+export const UNICODE_SYMBOLS = UNICODE_SYMBOL_MIRRORS;
 
 // ═══════════════════════════════════════════════════════════════
 //  Arabic mathematical alphabet (Unicode block U+1EE00 – U+1EEFF)
