@@ -11462,15 +11462,15 @@ const zi = {
   E: "هـ",
   F: "ف",
   G: "ق",
-  H: "ح",
+  H: "هـ",
   I: "ت",
-  J: "ج",
+  J: "جـ",
   K: "ك",
   L: "ل",
   M: "م",
   N: "ن",
   O: "ع",
-  P: "ح",
+  P: "حا",
   Q: "ق",
   R: "ر",
   S: "ز",
@@ -12032,7 +12032,7 @@ function _i(r, e) {
   const t = Z0(e), a = r.querySelector(".katex");
   a && (a.setAttribute("dir", t.direction), a.style.setProperty("--ka-font-family", Qa(t.fontFamily)), a.style.direction = t.direction);
 }
-const e4 = "1.1.6", r4 = {
+const e4 = "1.1.7", r4 = {
   // ─── Rendering ───────────────────────────────────────────
   render: Zi,
   renderToString: _a,
