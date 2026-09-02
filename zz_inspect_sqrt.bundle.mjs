@@ -3,24 +3,24 @@ var ParseError = class _ParseError extends Error {
   // The underlying error message without any context added.
   constructor(message, token) {
     var error = "KaTeX parse error: " + message;
-    var start2;
+    var start;
     var end;
     var loc = token && token.loc;
     if (loc && loc.start <= loc.end) {
       var input = loc.lexer.input;
-      start2 = loc.start;
+      start = loc.start;
       end = loc.end;
-      if (start2 === input.length) {
+      if (start === input.length) {
         error += " at end of input: ";
       } else {
-        error += " at position " + (start2 + 1) + ": ";
+        error += " at position " + (start + 1) + ": ";
       }
-      var underlined = input.slice(start2, end).replace(/[^]/g, "$&\u0332");
+      var underlined = input.slice(start, end).replace(/[^]/g, "$&\u0332");
       var left;
-      if (start2 > 15) {
-        left = "\u2026" + input.slice(start2 - 15, start2);
+      if (start > 15) {
+        left = "\u2026" + input.slice(start - 15, start);
       } else {
-        left = input.slice(0, start2);
+        left = input.slice(0, start);
       }
       var right;
       if (end + 15 < input.length) {
@@ -36,9 +36,9 @@ var ParseError = class _ParseError extends Error {
     this.length = void 0;
     this.rawMessage = void 0;
     Object.setPrototypeOf(this, _ParseError.prototype);
-    this.position = start2;
-    if (start2 != null && end != null) {
-      this.length = end - start2;
+    this.position = start;
+    if (start != null && end != null) {
+      this.length = end - start;
     }
     this.rawMessage = message;
   }
@@ -438,8 +438,8 @@ var scriptData = [{
   blocks: [[44032, 55215]]
 }];
 function scriptFromCodepoint(codepoint) {
-  for (var i = 0; i < scriptData.length; i++) {
-    var script2 = scriptData[i];
+  for (var i2 = 0; i2 < scriptData.length; i2++) {
+    var script2 = scriptData[i2];
     for (var _i = 0; _i < script2.blocks.length; _i++) {
       var block = script2.blocks[_i];
       if (codepoint >= block[0] && codepoint <= block[1]) {
@@ -452,8 +452,8 @@ function scriptFromCodepoint(codepoint) {
 var allBlocks = [];
 scriptData.forEach((s) => s.blocks.forEach((b) => allBlocks.push(...b)));
 function supportedCodepoint(codepoint) {
-  for (var i = 0; i < allBlocks.length; i += 2) {
-    if (codepoint >= allBlocks[i] && codepoint <= allBlocks[i + 1]) {
+  for (var i2 = 0; i2 < allBlocks.length; i2 += 2) {
+    if (codepoint >= allBlocks[i2] && codepoint <= allBlocks[i2 + 1]) {
       return true;
     }
   }
@@ -665,16 +665,16 @@ var DocumentFragment = class {
   /** Convert the fragment into a node. */
   toNode() {
     var frag = document.createDocumentFragment();
-    for (var i = 0; i < this.children.length; i++) {
-      frag.appendChild(this.children[i].toNode());
+    for (var i2 = 0; i2 < this.children.length; i2++) {
+      frag.appendChild(this.children[i2].toNode());
     }
     return frag;
   }
   /** Convert the fragment into HTML markup. */
   toMarkup() {
     var markup = "";
-    for (var i = 0; i < this.children.length; i++) {
-      markup += this.children[i].toMarkup();
+    for (var i2 = 0; i2 < this.children.length; i2++) {
+      markup += this.children[i2].toMarkup();
     }
     return markup;
   }
@@ -797,8 +797,8 @@ var toNode = function toNode2(tagName) {
   for (var attr of Object.keys(this.attributes)) {
     node.setAttribute(attr, this.attributes[attr]);
   }
-  for (var i = 0; i < this.children.length; i++) {
-    node.appendChild(this.children[i].toNode());
+  for (var i2 = 0; i2 < this.children.length; i2++) {
+    node.appendChild(this.children[i2].toNode());
   }
   return node;
 };
@@ -819,8 +819,8 @@ var toMarkup = function toMarkup2(tagName) {
     markup += " " + attr + '="' + escape(this.attributes[attr]) + '"';
   }
   markup += ">";
-  for (var i = 0; i < this.children.length; i++) {
-    markup += this.children[i].toMarkup();
+  for (var i2 = 0; i2 < this.children.length; i2++) {
+    markup += this.children[i2].toMarkup();
   }
   markup += "</" + tagName + ">";
   return markup;
@@ -1030,8 +1030,8 @@ var SvgNode = class {
     for (var attr of Object.keys(this.attributes)) {
       node.setAttribute(attr, this.attributes[attr]);
     }
-    for (var i = 0; i < this.children.length; i++) {
-      node.appendChild(this.children[i].toNode());
+    for (var i2 = 0; i2 < this.children.length; i2++) {
+      node.appendChild(this.children[i2].toNode());
     }
     return node;
   }
@@ -1041,8 +1041,8 @@ var SvgNode = class {
       markup += " " + attr + '="' + escape(this.attributes[attr]) + '"';
     }
     markup += ">";
-    for (var i = 0; i < this.children.length; i++) {
-      markup += this.children[i].toMarkup();
+    for (var i2 = 0; i2 < this.children.length; i2++) {
+      markup += this.children[i2].toMarkup();
     }
     markup += "</svg>";
     return markup;
@@ -4020,12 +4020,12 @@ defineSymbol(text, main, textord, "\xA3", "\\textsterling", true);
 defineSymbol(math, ams, textord, "\u2720", "\\maltese");
 defineSymbol(text, ams, textord, "\u2720", "\\maltese");
 var mathTextSymbols = '0123456789/@."';
-for (i = 0; i < mathTextSymbols.length; i++) {
-  ch = mathTextSymbols.charAt(i);
+for (i2 = 0; i2 < mathTextSymbols.length; i2++) {
+  ch = mathTextSymbols.charAt(i2);
   defineSymbol(math, main, textord, ch, ch);
 }
 var ch;
-var i;
+var i2;
 var textSymbols = '0123456789!@*()-=+";:?/.,';
 for (_i = 0; _i < textSymbols.length; _i++) {
   _ch = textSymbols.charAt(_i);
@@ -4247,8 +4247,8 @@ var wideCharacterFont = (wideChar2) => {
   var L = wideChar2.charCodeAt(1);
   var codePoint = (H - 55296) * 1024 + (L - 56320) + 65536;
   if (119808 <= codePoint && codePoint < 120484) {
-    var i = Math.floor((codePoint - 119808) / 26);
-    return wideLatinLetterData[i];
+    var i2 = Math.floor((codePoint - 119808) / 26);
+    return wideLatinLetterData[i2];
   } else if (120782 <= codePoint && codePoint <= 120831) {
     var _i = Math.floor((codePoint - 120782) / 10);
     return wideNumeralData[_i];
@@ -4359,8 +4359,8 @@ var makeOrd = function makeOrd2(group, options) {
       return makeSymbol(text2, fontName, mode, options, classes.concat(fontClasses));
     } else if (Object.prototype.hasOwnProperty.call(ligatures, text2) && fontName.slice(0, 10) === "Typewriter") {
       var parts = [];
-      for (var i = 0; i < text2.length; i++) {
-        parts.push(makeSymbol(text2[i], fontName, mode, options, classes.concat(fontClasses)));
+      for (var i2 = 0; i2 < text2.length; i2++) {
+        parts.push(makeSymbol(text2[i2], fontName, mode, options, classes.concat(fontClasses)));
       }
       return makeFragment(parts);
     }
@@ -4406,16 +4406,16 @@ var canCombine = (prev, next) => {
   return true;
 };
 var tryCombineChars = (chars) => {
-  for (var i = 0; i < chars.length - 1; i++) {
-    var prev = chars[i];
-    var next = chars[i + 1];
+  for (var i2 = 0; i2 < chars.length - 1; i2++) {
+    var prev = chars[i2];
+    var next = chars[i2 + 1];
     if (prev instanceof SymbolNode && next instanceof SymbolNode && canCombine(prev, next)) {
       prev.text += next.text;
       prev.height = Math.max(prev.height, next.height);
       prev.depth = Math.max(prev.depth, next.depth);
       prev.italic = next.italic;
-      chars.splice(i + 1, 1);
-      i--;
+      chars.splice(i2 + 1, 1);
+      i2--;
     }
   }
   return chars;
@@ -4424,8 +4424,8 @@ var sizeElementFromChildren = function sizeElementFromChildren2(elem) {
   var height = 0;
   var depth = 0;
   var maxFontSize = 0;
-  for (var i = 0; i < elem.children.length; i++) {
-    var child = elem.children[i];
+  for (var i2 = 0; i2 < elem.children.length; i2++) {
+    var child = elem.children[i2];
     if (child.height > height) {
       height = child.height;
     }
@@ -4475,15 +4475,15 @@ var getVListChildrenAndDepth = function getVListChildrenAndDepth2(params) {
     var children = [oldChildren[0]];
     var _depth = -oldChildren[0].shift - oldChildren[0].elem.depth;
     var currPos = _depth;
-    for (var i = 1; i < oldChildren.length; i++) {
-      var diff = -oldChildren[i].shift - currPos - oldChildren[i].elem.depth;
-      var size = diff - (oldChildren[i - 1].elem.height + oldChildren[i - 1].elem.depth);
+    for (var i2 = 1; i2 < oldChildren.length; i2++) {
+      var diff = -oldChildren[i2].shift - currPos - oldChildren[i2].elem.depth;
+      var size = diff - (oldChildren[i2 - 1].elem.height + oldChildren[i2 - 1].elem.depth);
       currPos = currPos + diff;
       children.push({
         type: "kern",
         size
       });
-      children.push(oldChildren[i]);
+      children.push(oldChildren[i2]);
     }
     return {
       children,
@@ -4521,8 +4521,8 @@ var getVListChildrenAndDepth = function getVListChildrenAndDepth2(params) {
 var makeVList = function makeVList2(params, options) {
   var _getVListChildrenAndD = getVListChildrenAndDepth(params), children = _getVListChildrenAndD.children, depth = _getVListChildrenAndD.depth;
   var pstrutSize = 0;
-  for (var i = 0; i < children.length; i++) {
-    var child = children[i];
+  for (var i2 = 0; i2 < children.length; i2++) {
+    var child = children[i2];
     if (child.type === "elem") {
       var elem = child.elem;
       pstrutSize = Math.max(pstrutSize, elem.maxFontSize, elem.height);
@@ -4782,8 +4782,8 @@ var _htmlGroupBuilders = {};
 var _mathmlGroupBuilders = {};
 function defineFunction(data) {
   var type = data.type, names = data.names, htmlBuilder3 = data.htmlBuilder, mathmlBuilder3 = data.mathmlBuilder;
-  for (var i = 0; i < names.length; ++i) {
-    _functions[names[i]] = data;
+  for (var i2 = 0; i2 < names.length; ++i2) {
+    _functions[names[i2]] = data;
   }
   if (type) {
     if (htmlBuilder3) {
@@ -4832,8 +4832,8 @@ var buildExpression$1 = function buildExpression(expression, options, isRealGrou
     surrounding = [null, null];
   }
   var groups = [];
-  for (var i = 0; i < expression.length; i++) {
-    var output = buildGroup$1(expression[i], options);
+  for (var i2 = 0; i2 < expression.length; i2++) {
+    var output = buildGroup$1(expression[i2], options);
     if (output instanceof DocumentFragment) {
       var children = output.children;
       groups.push(...children);
@@ -4885,9 +4885,9 @@ var _traverseNonSpaceNodes = function traverseNonSpaceNodes(nodes, callback, pre
   if (next) {
     nodes.push(next);
   }
-  var i = 0;
-  for (; i < nodes.length; i++) {
-    var node = nodes[i];
+  var i2 = 0;
+  for (; i2 < nodes.length; i2++) {
+    var node = nodes[i2];
     var partialGroup = checkPartialGroup(node);
     if (partialGroup) {
       _traverseNonSpaceNodes(partialGroup.children, callback, prev, null, isRoot);
@@ -4901,7 +4901,7 @@ var _traverseNonSpaceNodes = function traverseNonSpaceNodes(nodes, callback, pre
           prev.insertAfter(result);
         } else {
           nodes.unshift(result);
-          i++;
+          i2++;
         }
       }
     }
@@ -4912,8 +4912,8 @@ var _traverseNonSpaceNodes = function traverseNonSpaceNodes(nodes, callback, pre
     }
     prev.insertAfter = /* @__PURE__ */ ((index) => (n) => {
       nodes.splice(index + 1, 0, n);
-      i++;
-    })(i);
+      i2++;
+    })(i2);
   }
   if (next) {
     nodes.pop();
@@ -4993,14 +4993,14 @@ function buildHTML(tree, options) {
   }
   var children = [];
   var parts = [];
-  for (var i = 0; i < expression.length; i++) {
-    parts.push(expression[i]);
-    if (expression[i].hasClass("mbin") || expression[i].hasClass("mrel") || expression[i].hasClass("allowbreak")) {
+  for (var i2 = 0; i2 < expression.length; i2++) {
+    parts.push(expression[i2]);
+    if (expression[i2].hasClass("mbin") || expression[i2].hasClass("mrel") || expression[i2].hasClass("allowbreak")) {
       var nobreak = false;
-      while (i < expression.length - 1 && expression[i + 1].hasClass("mspace") && !expression[i + 1].hasClass("katex-newline")) {
-        i++;
-        parts.push(expression[i]);
-        if (expression[i].hasClass("nobreak")) {
+      while (i2 < expression.length - 1 && expression[i2 + 1].hasClass("mspace") && !expression[i2 + 1].hasClass("katex-newline")) {
+        i2++;
+        parts.push(expression[i2]);
+        if (expression[i2].hasClass("nobreak")) {
           nobreak = true;
         }
       }
@@ -5008,13 +5008,13 @@ function buildHTML(tree, options) {
         children.push(buildHTMLUnbreakable(parts, options));
         parts = [];
       }
-    } else if (expression[i].hasClass("katex-newline")) {
+    } else if (expression[i2].hasClass("katex-newline")) {
       parts.pop();
       if (parts.length > 0) {
         children.push(buildHTMLUnbreakable(parts, options));
         parts = [];
       }
-      children.push(expression[i]);
+      children.push(expression[i2]);
     }
   }
   if (parts.length > 0) {
@@ -5079,15 +5079,15 @@ var MathNode = class {
     if (this.classes.length > 0) {
       node.className = createClass(this.classes);
     }
-    for (var i = 0; i < this.children.length; i++) {
-      if (this.children[i] instanceof TextNode && this.children[i + 1] instanceof TextNode) {
-        var text2 = this.children[i].toText() + this.children[++i].toText();
-        while (this.children[i + 1] instanceof TextNode) {
-          text2 += this.children[++i].toText();
+    for (var i2 = 0; i2 < this.children.length; i2++) {
+      if (this.children[i2] instanceof TextNode && this.children[i2 + 1] instanceof TextNode) {
+        var text2 = this.children[i2].toText() + this.children[++i2].toText();
+        while (this.children[i2 + 1] instanceof TextNode) {
+          text2 += this.children[++i2].toText();
         }
         node.appendChild(new TextNode(text2).toNode());
       } else {
-        node.appendChild(this.children[i].toNode());
+        node.appendChild(this.children[i2].toNode());
       }
     }
     return node;
@@ -5108,8 +5108,8 @@ var MathNode = class {
       markup += ' class ="' + escape(createClass(this.classes)) + '"';
     }
     markup += ">";
-    for (var i = 0; i < this.children.length; i++) {
-      markup += this.children[i].toMarkup();
+    for (var i2 = 0; i2 < this.children.length; i2++) {
+      markup += this.children[i2].toMarkup();
     }
     markup += "</" + this.type + ">";
     return markup;
@@ -5308,8 +5308,8 @@ var buildExpression2 = function buildExpression3(expression, options, isOrdgroup
   }
   var groups = [];
   var lastGroup;
-  for (var i = 0; i < expression.length; i++) {
-    var _group = buildGroup2(expression[i], options);
+  for (var i2 = 0; i2 < expression.length; i2++) {
+    var _group = buildGroup2(expression[i2], options);
     if (_group instanceof MathNode && lastGroup instanceof MathNode) {
       if (_group.type === "mtext" && lastGroup.type === "mtext" && _group.getAttribute("mathvariant") === lastGroup.getAttribute("mathvariant")) {
         lastGroup.children.push(..._group.children);
@@ -5860,15 +5860,15 @@ var stretchySvg = function stretchySvg2(group, options) {
       } else {
         throw new Error("Correct katexImagesData or update code here to support\n                    " + numSvgChildren + " children.");
       }
-      for (var i = 0; i < numSvgChildren; i++) {
-        var _path = new PathNode(paths[i]);
+      for (var i2 = 0; i2 < numSvgChildren; i2++) {
+        var _path = new PathNode(paths[i2]);
         var _svgNode = new SvgNode([_path], {
           "width": "400em",
           "height": makeEm(_height2),
           "viewBox": "0 0 " + viewBoxWidth + " " + _viewBoxHeight,
-          "preserveAspectRatio": aligns[i] + " slice"
+          "preserveAspectRatio": aligns[i2] + " slice"
         });
-        var _span = makeSvgSpan([widthClasses[i]], [_svgNode], options);
+        var _span = makeSvgSpan([widthClasses[i2]], [_svgNode], options);
         if (numSvgChildren === 1) {
           return {
             span: _span,
@@ -6540,8 +6540,8 @@ function parseCD(parser) {
   }
   var row = [];
   var body = [row];
-  for (var i = 0; i < parsedRows.length; i++) {
-    var rowNodes = parsedRows[i];
+  for (var i2 = 0; i2 < parsedRows.length; i2++) {
+    var rowNodes = parsedRows[i2];
     var cell = newCell();
     for (var j = 0; j < rowNodes.length; j++) {
       if (!isStartOfArrow(rowNodes[j])) {
@@ -6596,7 +6596,7 @@ function parseCD(parser) {
         cell = newCell();
       }
     }
-    if (i % 2 === 0) {
+    if (i2 % 2 === 0) {
       row.push(cell);
     } else {
       row.shift();
@@ -7390,9 +7390,9 @@ var delimTypeToFont = function delimTypeToFont2(type) {
   }
 };
 var traverseSequence = function traverseSequence2(delim, height, sequence, options) {
-  var start2 = Math.min(2, 3 - options.style.size);
-  for (var i = start2; i < sequence.length; i++) {
-    var delimType = sequence[i];
+  var start = Math.min(2, 3 - options.style.size);
+  for (var i2 = start; i2 < sequence.length; i2++) {
+    var delimType = sequence[i2];
     if (delimType.type === "stack") {
       break;
     }
@@ -7622,13 +7622,13 @@ defineFunction({
     var innerHeight = 0;
     var innerDepth = 0;
     var hadMiddle = false;
-    for (var i = 0; i < inner2.length; i++) {
-      var node = inner2[i];
+    for (var i2 = 0; i2 < inner2.length; i2++) {
+      var node = inner2[i2];
       if (isMiddleDelimNode(node)) {
         hadMiddle = true;
       } else {
-        innerHeight = Math.max(inner2[i].height, innerHeight);
-        innerDepth = Math.max(inner2[i].depth, innerDepth);
+        innerHeight = Math.max(inner2[i2].height, innerHeight);
+        innerDepth = Math.max(inner2[i2].depth, innerDepth);
       }
     }
     innerHeight *= options.sizeMultiplier;
@@ -8009,8 +8009,8 @@ function defineEnvironment(_ref) {
     numOptionalArgs: 0,
     handler
   };
-  for (var i = 0; i < names.length; ++i) {
-    _environments[names[i]] = data;
+  for (var i2 = 0; i2 < names.length; ++i2) {
+    _environments[names[i2]] = data;
   }
   if (htmlBuilder3) {
     _htmlGroupBuilders[type] = htmlBuilder3;
@@ -8025,12 +8025,12 @@ function defineMacro(name, body) {
 }
 var SourceLocation = class _SourceLocation {
   // End offset, zero-based exclusive.
-  constructor(lexer, start2, end) {
+  constructor(lexer, start, end) {
     this.lexer = void 0;
     this.start = void 0;
     this.end = void 0;
     this.lexer = lexer;
-    this.start = start2;
+    this.start = start;
     this.end = end;
   }
   /**
@@ -8245,13 +8245,13 @@ var htmlBuilder$6 = function htmlBuilder(group, options) {
   var arstrutDepth = 0.3 * arrayskip;
   var totalHeight = 0;
   function setHLinePos(hlinesInGap) {
-    for (var i = 0; i < hlinesInGap.length; ++i) {
-      if (i > 0) {
+    for (var i2 = 0; i2 < hlinesInGap.length; ++i2) {
+      if (i2 > 0) {
         totalHeight += 0.25;
       }
       hlines.push({
         pos: totalHeight,
-        isDashed: hlinesInGap[i]
+        isDashed: hlinesInGap[i2]
       });
     }
   }
@@ -8462,13 +8462,13 @@ var mathmlBuilder$5 = function mathmlBuilder(group, options) {
   var tbl = [];
   var glue = new MathNode("mtd", [], ["mtr-glue"]);
   var tag = new MathNode("mtd", [], ["mml-eqn-num"]);
-  for (var i = 0; i < group.body.length; i++) {
-    var rw = group.body[i];
+  for (var i2 = 0; i2 < group.body.length; i2++) {
+    var rw = group.body[i2];
     var row = [];
     for (var j = 0; j < rw.length; j++) {
       row.push(new MathNode("mtd", [buildGroup2(rw[j], options)]));
     }
-    if (group.tags && group.tags[i]) {
+    if (group.tags && group.tags[i2]) {
       row.unshift(glue);
       row.push(glue);
       if (group.leqno) {
@@ -8587,8 +8587,8 @@ var alignedHandler = function alignedHandler2(context, args) {
   }
   var isAligned = !numCols;
   res.body.forEach(function(row) {
-    for (var i2 = 1; i2 < row.length; i2 += 2) {
-      var styling = assertNodeType(row[i2], "styling");
+    for (var i3 = 1; i3 < row.length; i3 += 2) {
+      var styling = assertNodeType(row[i3], "styling");
       var ordgroup = assertNodeType(styling.body[0], "ordgroup");
       ordgroup.body.unshift(emptyGroup);
     }
@@ -8601,15 +8601,15 @@ var alignedHandler = function alignedHandler2(context, args) {
       numCols = row.length;
     }
   });
-  for (var i = 0; i < numCols; ++i) {
+  for (var i2 = 0; i2 < numCols; ++i2) {
     var align = "r";
     var pregap = 0;
-    if (i % 2 === 1) {
+    if (i2 % 2 === 1) {
       align = "l";
-    } else if (i > 0 && isAligned) {
+    } else if (i2 > 0 && isAligned) {
       pregap = 1;
     }
-    cols[i] = {
+    cols[i2] = {
       type: "align",
       align,
       pregap,
@@ -9572,8 +9572,8 @@ defineFunction({
       return parser.formatUnsupportedCmd("\\url");
     }
     var chars = [];
-    for (var i = 0; i < href.length; i++) {
-      var c = href[i];
+    for (var i2 = 0; i2 < href.length; i2++) {
+      var c = href[i2];
       if (c === "~") {
         c = "\\textasciitilde";
       }
@@ -9662,15 +9662,15 @@ defineFunction({
         var ESCAPED_COMMA = "{,}";
         var data = [];
         var current = "";
-        for (var i = 0; i < value.length; i++) {
-          if (value.startsWith(ESCAPED_COMMA, i)) {
+        for (var i2 = 0; i2 < value.length; i2++) {
+          if (value.startsWith(ESCAPED_COMMA, i2)) {
             current += ",";
-            i += ESCAPED_COMMA.length - 1;
-          } else if (value[i] === ",") {
+            i2 += ESCAPED_COMMA.length - 1;
+          } else if (value[i2] === ",") {
             data.push(current);
             current = "";
           } else {
-            current += value[i];
+            current += value[i2];
           }
         }
         data.push(current);
@@ -9793,8 +9793,8 @@ defineFunction({
     if (optArgs[0]) {
       var attributeStr = assertNodeType(optArgs[0], "raw").string;
       var attributes = attributeStr.split(",");
-      for (var i = 0; i < attributes.length; i++) {
-        var keyVal = attributes[i].split("=");
+      for (var i2 = 0; i2 < attributes.length; i2++) {
+        var keyVal = attributes[i2].split("=");
         if (keyVal.length === 2) {
           var str = keyVal[1].trim();
           switch (keyVal[0].trim()) {
@@ -10197,8 +10197,8 @@ var htmlBuilder$2 = (grp, options) => {
     }
   } else {
     var output = [];
-    for (var i = 1; i < group.name.length; i++) {
-      output.push(mathsym(group.name[i], group.mode, options));
+    for (var i2 = 1; i2 < group.name.length; i2++) {
+      output.push(mathsym(group.name[i2], group.mode, options));
     }
     base = makeSpan(["mop"], output, options);
   }
@@ -10382,8 +10382,8 @@ var htmlBuilder$1 = (grp, options) => {
       }
     });
     var expression = buildExpression$1(body, options.withFont("mathrm"), true);
-    for (var i = 0; i < expression.length; i++) {
-      var child = expression[i];
+    for (var i2 = 0; i2 < expression.length; i2++) {
+      var child = expression[i2];
       if (child instanceof SymbolNode) {
         child.text = child.text.replace(/\u2212/, "-").replace(/\u2217/, "*");
       }
@@ -10401,8 +10401,8 @@ var htmlBuilder$1 = (grp, options) => {
 var mathmlBuilder2 = (group, options) => {
   var expression = buildExpression2(group.body, options.withFont("mathrm"));
   var isAllString = true;
-  for (var i = 0; i < expression.length; i++) {
-    var node = expression[i];
+  for (var i2 = 0; i2 < expression.length; i2++) {
+    var node = expression[i2];
     if (node instanceof SpaceNode) ;
     else if (node instanceof MathNode) {
       switch (node.type) {
@@ -10675,15 +10675,15 @@ defineFunction({
 function sizingGroup(value, options, baseOptions) {
   var inner2 = buildExpression$1(value, options, false);
   var multiplier = options.sizeMultiplier / baseOptions.sizeMultiplier;
-  for (var i = 0; i < inner2.length; i++) {
-    var pos = inner2[i].classes.indexOf("katex-sizing");
+  for (var i2 = 0; i2 < inner2.length; i2++) {
+    var pos = inner2[i2].classes.indexOf("katex-sizing");
     if (pos < 0) {
-      Array.prototype.push.apply(inner2[i].classes, options.sizingClasses(baseOptions));
-    } else if (inner2[i].classes[pos + 1] === "reset-size" + options.size) {
-      inner2[i].classes[pos + 1] = "reset-size" + baseOptions.size;
+      Array.prototype.push.apply(inner2[i2].classes, options.sizingClasses(baseOptions));
+    } else if (inner2[i2].classes[pos + 1] === "reset-size" + options.size) {
+      inner2[i2].classes[pos + 1] = "reset-size" + baseOptions.size;
     }
-    inner2[i].height *= multiplier;
-    inner2[i].depth *= multiplier;
+    inner2[i2].height *= multiplier;
+    inner2[i2].depth *= multiplier;
   }
   return makeFragment(inner2);
 }
@@ -10730,8 +10730,8 @@ defineFunction({
     var tbArg = optArgs[0] && assertNodeType(optArgs[0], "ordgroup");
     if (tbArg) {
       var letter;
-      for (var i = 0; i < tbArg.body.length; ++i) {
-        var node = tbArg.body[i];
+      for (var i2 = 0; i2 < tbArg.body.length; ++i2) {
+        var node = tbArg.body[i2];
         letter = assertSymbolNodeType(node).text;
         if (letter === "t") {
           smashHeight = true;
@@ -10771,12 +10771,12 @@ defineFunction({
       return makeSpan(["mord", "katex-smash"], [node], options);
     }
     if (node.children) {
-      for (var i = 0; i < node.children.length; i++) {
+      for (var i2 = 0; i2 < node.children.length; i2++) {
         if (group.smashHeight) {
-          node.children[i].height = 0;
+          node.children[i2].height = 0;
         }
         if (group.smashDepth) {
-          node.children[i].depth = 0;
+          node.children[i2].depth = 0;
         }
       }
     }
@@ -11389,8 +11389,8 @@ defineFunction({
     var text2 = makeVerb(group);
     var body = [];
     var newOptions = options.havingStyle(options.style.text());
-    for (var i = 0; i < text2.length; i++) {
-      var c = text2[i];
+    for (var i2 = 0; i2 < text2.length; i2++) {
+      var c = text2[i2];
       if (c === "~") {
         c = "\\textasciitilde";
       }
@@ -11557,8 +11557,8 @@ var Namespace = class {
       global = false;
     }
     if (global) {
-      for (var i = 0; i < this.undefStack.length; i++) {
-        delete this.undefStack[i][name];
+      for (var i2 = 0; i2 < this.undefStack.length; i2++) {
+        delete this.undefStack[i2][name];
       }
       if (this.undefStack.length > 0) {
         this.undefStack[this.undefStack.length - 1][name] = value;
@@ -12332,7 +12332,7 @@ var MacroExpander = class {
    * tokens to the token stack. Uses Token as a container for the result.
    */
   scanArgument(isOptional) {
-    var start2;
+    var start;
     var end;
     var tokens;
     if (isOptional) {
@@ -12340,19 +12340,19 @@ var MacroExpander = class {
       if (this.future().text !== "[") {
         return null;
       }
-      start2 = this.popToken();
+      start = this.popToken();
       var _this$consumeArg = this.consumeArg(["]"]);
       tokens = _this$consumeArg.tokens;
       end = _this$consumeArg.end;
     } else {
       var _this$consumeArg2 = this.consumeArg();
       tokens = _this$consumeArg2.tokens;
-      start2 = _this$consumeArg2.start;
+      start = _this$consumeArg2.start;
       end = _this$consumeArg2.end;
     }
     this.pushToken(new Token("EOF", end.loc));
     this.pushTokens(tokens);
-    return new Token("", SourceLocation.range(start2, end));
+    return new Token("", SourceLocation.range(start, end));
   }
   /**
    * Consume all following space tokens, without expansion.
@@ -12377,7 +12377,7 @@ var MacroExpander = class {
     if (!isDelimited) {
       this.consumeSpaces();
     }
-    var start2 = this.future();
+    var start = this.future();
     var tok;
     var depth = 0;
     var match = 0;
@@ -12406,14 +12406,14 @@ var MacroExpander = class {
         }
       }
     } while (depth !== 0 || isDelimited);
-    if (start2.text === "{" && tokens[tokens.length - 1].text === "}") {
+    if (start.text === "{" && tokens[tokens.length - 1].text === "}") {
       tokens.pop();
       tokens.shift();
     }
     tokens.reverse();
     return {
       tokens,
-      start: start2,
+      start,
       end: tok
     };
   }
@@ -12427,9 +12427,9 @@ var MacroExpander = class {
         throw new ParseError("The length of delimiters doesn't match the number of args!");
       }
       var delims = delimiters2[0];
-      for (var i = 0; i < delims.length; i++) {
+      for (var i2 = 0; i2 < delims.length; i2++) {
         var tok = this.popToken();
-        if (delims[i] !== tok.text) {
+        if (delims[i2] !== tok.text) {
           throw new ParseError("Use of the macro doesn't match its definition", tok);
         }
       }
@@ -12485,17 +12485,17 @@ var MacroExpander = class {
     var args = this.consumeArgs(expansion.numArgs, expansion.delimiters);
     if (expansion.numArgs) {
       tokens = tokens.slice();
-      for (var i = tokens.length - 1; i >= 0; --i) {
-        var tok = tokens[i];
+      for (var i2 = tokens.length - 1; i2 >= 0; --i2) {
+        var tok = tokens[i2];
         if (tok.text === "#") {
-          if (i === 0) {
+          if (i2 === 0) {
             throw new ParseError("Incomplete placeholder at end of macro body", tok);
           }
-          tok = tokens[--i];
+          tok = tokens[--i2];
           if (tok.text === "#") {
-            tokens.splice(i + 1, 1);
+            tokens.splice(i2 + 1, 1);
           } else if (/^[1-9]$/.test(tok.text)) {
-            tokens.splice(i, 2, ...args[+tok.text - 1]);
+            tokens.splice(i2, 2, ...args[+tok.text - 1]);
           } else {
             throw new ParseError("Not a valid argument number", tok);
           }
@@ -13266,13 +13266,13 @@ var Parser = class _Parser {
   handleInfixNodes(body) {
     var overIndex = -1;
     var funcName;
-    for (var i = 0; i < body.length; i++) {
-      var node = body[i];
+    for (var i2 = 0; i2 < body.length; i2++) {
+      var node = body[i2];
       if (node.type === "infix") {
         if (overIndex !== -1) {
           throw new ParseError("only one infix operator per group", node.token);
         }
-        overIndex = i;
+        overIndex = i2;
         funcName = node.replaceWith;
       }
     }
@@ -13334,11 +13334,11 @@ var Parser = class _Parser {
    */
   formatUnsupportedCmd(text2) {
     var textordArray = [];
-    for (var i = 0; i < text2.length; i++) {
+    for (var i2 = 0; i2 < text2.length; i2++) {
       textordArray.push({
         type: "textord",
         mode: "text",
-        text: text2[i]
+        text: text2[i2]
       });
     }
     var textNode = {
@@ -13528,12 +13528,12 @@ var Parser = class _Parser {
     }
     var args = [];
     var optArgs = [];
-    for (var i = 0; i < totalArgs; i++) {
+    for (var i2 = 0; i2 < totalArgs; i2++) {
       var _funcData$argTypes;
-      var argType = (_funcData$argTypes = funcData.argTypes) == null ? void 0 : _funcData$argTypes[i];
-      var isOptional = i < numOptionalArgs;
+      var argType = (_funcData$argTypes = funcData.argTypes) == null ? void 0 : _funcData$argTypes[i2];
+      var isOptional = i2 < numOptionalArgs;
       if ("primitive" in funcData && funcData.primitive && argType == null || // \sqrt expands into primitive if optional argument doesn't exist
-      funcData.type === "sqrt" && i === 1 && optArgs[0] == null) {
+      funcData.type === "sqrt" && i2 === 1 && optArgs[0] == null) {
         argType = "primitive";
       }
       var arg = this.parseGroupOfType("argument to '" + func + "'", argType, isOptional);
@@ -13805,20 +13805,20 @@ var Parser = class _Parser {
    */
   formLigatures(group) {
     var n = group.length - 1;
-    for (var i = 0; i < n; ++i) {
-      var a = group[i];
+    for (var i2 = 0; i2 < n; ++i2) {
+      var a = group[i2];
       if (a.type !== "textord") {
         continue;
       }
       var v = a.text;
-      var next = group[i + 1];
+      var next = group[i2 + 1];
       if (!next || next.type !== "textord") {
         continue;
       }
       if (v === "-" && next.text === "-") {
-        var afterNext = group[i + 2];
-        if (i + 1 < n && afterNext && afterNext.type === "textord" && afterNext.text === "-") {
-          group.splice(i, 3, {
+        var afterNext = group[i2 + 2];
+        if (i2 + 1 < n && afterNext && afterNext.type === "textord" && afterNext.text === "-") {
+          group.splice(i2, 3, {
             type: "textord",
             mode: "text",
             loc: SourceLocation.range(a, afterNext),
@@ -13826,7 +13826,7 @@ var Parser = class _Parser {
           });
           n -= 2;
         } else {
-          group.splice(i, 2, {
+          group.splice(i2, 2, {
             type: "textord",
             mode: "text",
             loc: SourceLocation.range(a, next),
@@ -13836,7 +13836,7 @@ var Parser = class _Parser {
         }
       }
       if ((v === "'" || v === "`") && next.text === v) {
-        group.splice(i, 2, {
+        group.splice(i2, 2, {
           type: "textord",
           mode: "text",
           loc: SourceLocation.range(a, next),
@@ -13930,8 +13930,8 @@ var Parser = class _Parser {
     }
     this.consume();
     if (match) {
-      for (var i = 0; i < match[0].length; i++) {
-        var accent2 = match[0][i];
+      for (var i2 = 0; i2 < match[0].length; i2++) {
+        var accent2 = match[0][i2];
         if (!unicodeAccents[accent2]) {
           throw new ParseError("Unknown accent ' " + accent2 + "'", nucleus);
         }
@@ -14214,11 +14214,11 @@ var FUNCTION_MAP = {
   "\\ln": "\\operatorname{\u0644\u0648}",
   "\\log": "\\operatorname{\u0644\u063A}",
   "\\lg": "\\operatorname{\u0644\u063A}",
-  "\\exp": "\\operatorname{\u0623\u0633}",
+  "\\exp": "\\operatorname{\u0647\u0640}",
   // ─── Limits (kept as \arabiLim; translated separately) ───
   // Named consistently with the \sup / \inf entries (أعلى / أدنى)
   // so the operator vocabulary stays internally coherent.
-  "\\liminf": "\\operatorname*{\u0646\u0647\u0627\\,\u0623\u062F\u0646\u0649}",
+  "\\liminf": "\\operatorname*{\u0646\u0647\u0640\u0627\\,\u0623\u062F\u0646\u0649}",
   // ─── Maxima / minima ─────────────────────────────────────
   "\\max": "\\operatorname*{\u0623\u0642\u0635\u0649}",
   "\\min": "\\operatorname*{\u0623\u062F\u0646\u0649}",
@@ -14263,11 +14263,11 @@ var FUNCTION_MAP = {
   "\\infty": "\\infty",
   "\\lim": "\\lim",
   // processed via arabiLim pathway
-  "\\limsup": "\\operatorname*{\u0646\u0647\u0627\\,\u0623\u0639\u0644\u0649}",
+  "\\limsup": "\\operatorname*{\u0646\u0647\u0640\u0627\\,\u0623\u0639\u0644\u0649}",
   // ─── Special marker used internally for limit translation ─
   // \arabiLim is a sentinel that the translator pipeline replaces
   // with the proper \operatorname* form. Users normally do not write this.
-  "\\arabiLim": "\\operatorname*{\u0646\u0647\u0627}"
+  "\\arabiLim": "\\operatorname*{\u0646\u0647\u0640\u0627}"
   // '\\lim': '\\operatorname*{نها}',
 };
 var VARIABLE_MAP = {
@@ -14424,15 +14424,15 @@ function translateVariables(latex, customMap = {}) {
   const sortedKeys = Object.keys(merged).filter((key) => key.length > 0).sort((a, b) => b.length - a.length);
   const protectedRegions = collectProtectedRegions(latex);
   let result = "";
-  let i = 0;
-  while (i < latex.length) {
-    const ch = latex[i];
-    if (ch === "\\" && i + 1 < latex.length && /[a-zA-Z]/.test(latex[i + 1])) {
-      let j = i + 1;
+  let i2 = 0;
+  while (i2 < latex.length) {
+    const ch = latex[i2];
+    if (ch === "\\" && i2 + 1 < latex.length && /[a-zA-Z]/.test(latex[i2 + 1])) {
+      let j = i2 + 1;
       while (j < latex.length && /[a-zA-Z]/.test(latex[j])) {
         j++;
       }
-      const command = latex.slice(i + 1, j);
+      const command = latex.slice(i2 + 1, j);
       if (command === "begin" || command === "end") {
         let k = j;
         while (k < latex.length && /\s/.test(latex[k])) {
@@ -14440,44 +14440,44 @@ function translateVariables(latex, customMap = {}) {
         }
         if (latex[k] === "{") {
           const groupEnd = findMatchingBrace(latex, k);
-          result += latex.slice(i, groupEnd);
-          i = groupEnd;
+          result += latex.slice(i2, groupEnd);
+          i2 = groupEnd;
           const envName = latex.slice(k + 1, groupEnd - 1);
           if (command === "begin" && (envName === "array" || envName === "darray" || envName === "subarray")) {
-            let s = i;
+            let s = i2;
             while (s < latex.length && /\s/.test(latex[s])) {
               s++;
             }
             if (latex[s] === "{") {
               const specEnd = findMatchingBrace(latex, s);
-              result += latex.slice(i, specEnd);
-              i = specEnd;
+              result += latex.slice(i2, specEnd);
+              i2 = specEnd;
             }
           }
           continue;
         }
       }
-      result += latex.slice(i, j);
-      i = j;
+      result += latex.slice(i2, j);
+      i2 = j;
       continue;
     }
-    if (/[a-zA-Z]/.test(ch) && i > 0 && /[0-9]/.test(latex[i - 1])) {
-      let j = i;
+    if (/[a-zA-Z]/.test(ch) && i2 > 0 && /[0-9]/.test(latex[i2 - 1])) {
+      let j = i2;
       while (j < latex.length && /[a-zA-Z]/.test(latex[j])) {
         j++;
       }
-      if (TEX_DIMENSION_UNITS.has(latex.slice(i, j))) {
-        result += latex.slice(i, j);
-        i = j;
+      if (TEX_DIMENSION_UNITS.has(latex.slice(i2, j))) {
+        result += latex.slice(i2, j);
+        i2 = j;
         continue;
       }
     }
-    if (!isInsideRegions(i, protectedRegions)) {
+    if (!isInsideRegions(i2, protectedRegions)) {
       let matched = false;
       for (const key of sortedKeys) {
-        if (latex.startsWith(key, i)) {
+        if (latex.startsWith(key, i2)) {
           result += `\\text{${merged[key]}}`;
-          i += key.length;
+          i2 += key.length;
           matched = true;
           break;
         }
@@ -14485,7 +14485,7 @@ function translateVariables(latex, customMap = {}) {
       if (matched) continue;
     }
     result += ch;
-    i++;
+    i2++;
   }
   return result;
 }
@@ -14790,15 +14790,15 @@ function processArabicLatex(latex, options = {}) {
 var TEX_UNIT_PATTERN = /^(?:pt|mm|cm|in|ex|em|mu|px|pc|bp|dd|cc|nd|nc|sp)/;
 function convertNumbersInLatex(latex, style, formatSeparators) {
   let result = "";
-  let i = 0;
-  while (i < latex.length) {
-    const ch = latex[i];
+  let i2 = 0;
+  while (i2 < latex.length) {
+    const ch = latex[i2];
     if (ch && /[0-9]/.test(ch)) {
-      const prev = i > 0 ? latex[i - 1] : "";
+      const prev = i2 > 0 ? latex[i2 - 1] : "";
       if (prev && /[A-Za-z]/.test(prev)) {
         result += ch;
       } else {
-        let j = i;
+        let j = i2;
         while (j < latex.length) {
           const cj = latex[j];
           if (cj && /[0-9.,]/.test(cj)) {
@@ -14807,20 +14807,20 @@ function convertNumbersInLatex(latex, style, formatSeparators) {
             break;
           }
         }
-        const run = latex.slice(i, j);
+        const run = latex.slice(i2, j);
         if (TEX_UNIT_PATTERN.test(latex.slice(j, j + 2))) {
           result += run;
-          i = j;
+          i2 = j;
           continue;
         }
         result += formatSeparators ? formatArabicNumber(run) : toArabicNumerals(run, style);
-        i = j;
+        i2 = j;
         continue;
       }
     } else {
       result += ch ?? "";
     }
-    i++;
+    i2++;
   }
   return result;
 }
@@ -14942,10 +14942,7 @@ function renderArabicWithMeta(latex, options = {}) {
 // zz_inspect_sqrt.mjs
 console.warn = () => {
 };
-var html = renderArabicToString(
-  "\\begin{pmatrix} \u0623 & \u0628 \\\\ \u062C & \u062F \\end{pmatrix}",
-  { displayMode: true }
-);
-var clean = html.replace(/<path[^>]*>[\s\S]*?<\/path>/g, "<path/>").replace(/d="[^"]*"/g, "");
-var start = clean.indexOf("mtable");
-console.log(clean.substring(start - 200, start + 3500));
+var clean = (s) => s.replace(/<path[^>]*>[\s\S]*?<\/path>/g, "<path/>").replace(/d="[^"]*"/g, "");
+var html = renderArabicToString("\\lim_{\u0633 \\to 0} \u0641(\u0633)", { displayMode: true });
+var i = html.indexOf("op-limits");
+console.log(clean(html.substring(Math.max(0, i - 300), i + 1800)));
