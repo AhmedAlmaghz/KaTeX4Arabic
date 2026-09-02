@@ -151,7 +151,7 @@ describe('dictionaries', () => {
   });
 
   it('translates \\exp like the other KaTeX builtin operators', () => {
-    expect(translateFunctions('\\exp(x)')).toContain('أس');
+    expect(translateFunctions('\\exp(x)')).toContain('هـ');
   });
 
   it('names liminf and limsup distinctly (أدنى / أعلى)', () => {

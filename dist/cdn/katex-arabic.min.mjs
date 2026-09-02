@@ -11365,11 +11365,11 @@ const zi = {
   "\\ln": "\\operatorname{لو}",
   "\\log": "\\operatorname{لغ}",
   "\\lg": "\\operatorname{لغ}",
-  "\\exp": "\\operatorname{أس}",
+  "\\exp": "\\operatorname{هـ}",
   // ─── Limits (kept as \arabiLim; translated separately) ───
   // Named consistently with the \sup / \inf entries (أعلى / أدنى)
   // so the operator vocabulary stays internally coherent.
-  "\\liminf": "\\operatorname*{نها\\,أدنى}",
+  "\\liminf": "\\operatorname*{نهـا\\,أدنى}",
   // ─── Maxima / minima ─────────────────────────────────────
   "\\max": "\\operatorname*{أقصى}",
   "\\min": "\\operatorname*{أدنى}",
@@ -11414,11 +11414,11 @@ const zi = {
   "\\infty": "\\infty",
   "\\lim": "\\lim",
   // processed via arabiLim pathway
-  "\\limsup": "\\operatorname*{نها\\,أعلى}",
+  "\\limsup": "\\operatorname*{نهـا\\,أعلى}",
   // ─── Special marker used internally for limit translation ─
   // \arabiLim is a sentinel that the translator pipeline replaces
   // with the proper \operatorname* form. Users normally do not write this.
-  "\\arabiLim": "\\operatorname*{نها}"
+  "\\arabiLim": "\\operatorname*{نهـا}"
   // '\\lim': '\\operatorname*{نها}',
 }, Ee = {
   // ─── Lowercase ───────────────────────────────────────────
@@ -12032,7 +12032,7 @@ function _i(r, e) {
   const t = Z0(e), a = r.querySelector(".katex");
   a && (a.setAttribute("dir", t.direction), a.style.setProperty("--ka-font-family", Qa(t.fontFamily)), a.style.direction = t.direction);
 }
-const e4 = "1.1.5", r4 = {
+const e4 = "1.1.6", r4 = {
   // ─── Rendering ───────────────────────────────────────────
   render: Zi,
   renderToString: _a,

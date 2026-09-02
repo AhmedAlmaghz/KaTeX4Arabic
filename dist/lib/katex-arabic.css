@@ -180,30 +180,55 @@
 /* ─── Integral upper-bound nudge (RTL only) ──────────────────
    In the mirrored / full-RTL layout the upper (superscript) bound of a
    big operator (∫ ∮ ∬ — and any bound that KaTeX stacks via .msupsub
-   instead of .op-limits) sits a little to the right of where it should
-   sit relative to the operator's two tips. This shifts ONLY that upper
-   bound 5px to the left. It is scoped to .full-rtl-mode so an explicit
-   LTR rendering keeps KaTeX's own placement untouched. It is a
-   GPU-composited, purely-visual transform: the row is
+   instead of .op-limits) sits far to the RIGHT of the tip it belongs
+   to: the operator is an isolated LTR unit (glyph left, limits right)
+   while the mirrored glyph points the other way — its top tip is at
+   the glyph's top-LEFT. Shift ONLY that upper bound left onto the
+   tip (the lower bound's inline margin-left already tucks it against
+   the bottom-right tip). In em so it scales with the font. Scoped to
+   .full-rtl-mode so an explicit LTR rendering keeps KaTeX's own
+   placement untouched, and to :not(:only-child) so an operator with
+   a LOWER bound only (∫_a — a single vlist row) is never mistaken
+   for the upper one. It is a GPU-composited, purely-visual
+   transform: the row is
    `.vlist>span { display:block; position:relative; height:0 }`, so
    translateX does not alter KaTeX's computed top / margin offsets that
    place the lower bound and the glyph. Make it tunable (or disable,
    set to 0) from the wrapper:
-        .math-equation { --ka-upper-limit-shift: -5px; }  */
+        .math-equation { --ka-upper-limit-shift: -1.05em; }  */
 .katex-arabic.full-rtl-mode .katex .mop:not(.op-limits):has(> .op-symbol) .msupsub
-  .vlist-r:first-child .vlist > span:last-child {
+  .vlist-r:first-child .vlist > span:last-child:not(:only-child) {
   transform:
-    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+    translateX(var(--ka-upper-limit-shift, -1.05em)) translateZ(0);
   -webkit-transform:
-    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+    translateX(var(--ka-upper-limit-shift, -1.05em)) translateZ(0);
   -moz-transform:
-    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+    translateX(var(--ka-upper-limit-shift, -1.05em)) translateZ(0);
   -ms-transform:
-    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+    translateX(var(--ka-upper-limit-shift, -1.05em)) translateZ(0);
   -o-transform:
-    translateX(var(--ka-upper-limit-shift, -5px)) translateZ(0);
+    translateX(var(--ka-upper-limit-shift, -1.05em)) translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* ─── Mirrored relations & arrows: stop bidi re-mirroring ───
+   The LaTeX pipeline already swaps mirrored symbols (∈→∋, ⊂→⊃,
+   →→←, <→>, ≤→≥, …), so the SOURCE glyph carries the Arabic
+   orientation. But ∈, ∋, ⊂, ⊃, <, >, ←, → and friends all carry
+   the Unicode Bidi_Mirrored property: under the RTL equation
+   context the browser mirrors the glyph a SECOND time, so the user
+   sees the Latin orientation again (∋ silently rendered as ∈).
+   Isolating each relation / binary-operator atom as an LTR unit
+   makes the browser render the swapped glyph verbatim — one
+   deterministic mirror, the LaTeX-level one. Opening/closing
+   delimiters (mopen/mclose) are deliberately NOT isolated: the
+   pipeline does not swap raw brackets, so the browser's own bidi
+   mirroring is what gives them the correct Arabic shape. */
+.katex-arabic .katex .mrel,
+.katex-arabic .katex .mbin {
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -284,11 +309,13 @@
 
 /* n-th root index: KaTeX spaces it for LTR (margin-left gap, plus a
    negative margin-right that pulls the body over the index). In RTL
-   the index sits to the RIGHT of the stroke, and KaTeX's 0.2777em
-   margin-left now falls on the stroke side where the gap belongs —
-   only the negative outer margin must go, or the index would hang
-   past the container's right edge. */
+   the index sits to the RIGHT of the stroke, so the gap the reader
+   sees is KaTeX's 0.2777em margin-left (now facing the stroke).
+   Tighten it — Arabic typesetting tucks the index right up against
+   the radical hook — and drop the negative outer margin, which
+   would otherwise hang the index past the container's right edge. */
 .katex-arabic.mirror-sqrt .katex .sqrt > .katex-root {
+  margin-left: 0.05em;
   margin-right: 0;
 }
 

@@ -111,11 +111,11 @@ const FUNCTION_MAP = {
   "\\ln": "\\operatorname{لو}",
   "\\log": "\\operatorname{لغ}",
   "\\lg": "\\operatorname{لغ}",
-  "\\exp": "\\operatorname{أس}",
+  "\\exp": "\\operatorname{هـ}",
   // ─── Limits (kept as \arabiLim; translated separately) ───
   // Named consistently with the \sup / \inf entries (أعلى / أدنى)
   // so the operator vocabulary stays internally coherent.
-  "\\liminf": "\\operatorname*{نها\\,أدنى}",
+  "\\liminf": "\\operatorname*{نهـا\\,أدنى}",
   // ─── Maxima / minima ─────────────────────────────────────
   "\\max": "\\operatorname*{أقصى}",
   "\\min": "\\operatorname*{أدنى}",
@@ -160,11 +160,11 @@ const FUNCTION_MAP = {
   "\\infty": "\\infty",
   "\\lim": "\\lim",
   // processed via arabiLim pathway
-  "\\limsup": "\\operatorname*{نها\\,أعلى}",
+  "\\limsup": "\\operatorname*{نهـا\\,أعلى}",
   // ─── Special marker used internally for limit translation ─
   // \arabiLim is a sentinel that the translator pipeline replaces
   // with the proper \operatorname* form. Users normally do not write this.
-  "\\arabiLim": "\\operatorname*{نها}"
+  "\\arabiLim": "\\operatorname*{نهـا}"
   // '\\lim': '\\operatorname*{نها}',
 };
 const VARIABLE_MAP = {

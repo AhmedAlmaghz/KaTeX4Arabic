@@ -30,7 +30,7 @@ describe('full Arabic pipeline', () => {
   it('handles limits, differentials and fractions together', () => {
     const result = processLatex('\\lim_{x \\to 0} \\frac{\\sin x}{x} dx');
 
-    expect(result).toContain('\\operatorname*{نها}');
+    expect(result).toContain('\\operatorname*{نهـا}');
     expect(result).toContain('\\gets'); // \to mirrored for RTL
     expect(result).toContain('\\text{د}'); // dx differential
     expect(result).toContain('\\text{س}');
