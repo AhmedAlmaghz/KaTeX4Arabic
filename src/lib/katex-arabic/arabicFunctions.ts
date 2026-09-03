@@ -88,8 +88,8 @@ export const FUNCTION_MAP: Record<string, string> = {
   '\\bmod': '\\operatorname{باقي}',
 
   // ─── Combinatorics (التباديل / التوافيق) ───────────────────
-  '\perm': '\operatorname{ل}',
-  '\comb': '\operatorname{ق}',
+  '\\perm': '\\operatorname{ل}',
+  '\\comb': '\\operatorname{ق}',
 
   // ─── Probability & statistics ────────────────────────────
   '\\Pr': '\\operatorname{حا}',
@@ -195,7 +195,7 @@ export const VARIABLE_MAP: Record<string, string> = {
   W: 'و',
   X: 'س',
   Y: 'ص',
-  Z: 'ز',
+  Z: 'ع',
 };
 
 // ═══════════════════════════════════════════════════════════════

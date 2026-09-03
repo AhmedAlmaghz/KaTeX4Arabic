@@ -370,8 +370,8 @@ export function getArabicMacros(
     '\\ادنى': '\\operatorname*{أدنى}',
 
     // Combinatorics (التباديل / التوافيق → big ل / big ق)
-    '\تباديل': '\operatorname{ل}',
-    '\توافيق': '\operatorname{ق}',
+    '\\تباديل': '\\operatorname{ل}',
+    '\\توافيق': '\\operatorname{ق}',
 
     // Imaginary / constants
     '\\ت': '\\text{ت}',
