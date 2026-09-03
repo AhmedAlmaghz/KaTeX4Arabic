@@ -40,6 +40,8 @@ const FUNCTION_ROWS: TableRow[] = [
   { latex: '\\Pr', arabic: 'حا', preview: '\\Pr(A)' },
   { latex: '\\det', arabic: 'محدد', preview: '\\det(A)' },
   { latex: '\\gcd', arabic: 'ق.م.أ', preview: '\\gcd(a, b)' },
+  { latex: '\\perm', arabic: 'ل', preview: '\\perm(n, k)' },
+  { latex: '\\comb', arabic: 'ق', preview: '\\comb(n, k)' },
 ];
 
 const VARIABLE_ROWS: TableRow[] = [
@@ -52,7 +54,7 @@ const VARIABLE_ROWS: TableRow[] = [
   { latin: 'e', arabic: 'هـ', preview: 'e^x' },
   { latin: 'i', arabic: 'ت', preview: 'x + iy' },
   { latin: 'n, m, k', arabic: 'ن، م، ك', preview: 'n + m' },
-  { latin: 'r', arabic: 'ر', preview: 'r^2' },
+  { latin: 'r', arabic: 'نق', preview: 'r^2' },
   { latin: 't', arabic: 'ز', preview: 't = 0' },
 ];
 

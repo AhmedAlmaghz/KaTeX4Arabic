@@ -87,12 +87,16 @@ export const FUNCTION_MAP: Record<string, string> = {
   '\\mod': '\\operatorname{باقي}',
   '\\bmod': '\\operatorname{باقي}',
 
+  // ─── Combinatorics (التباديل / التوافيق) ───────────────────
+  '\perm': '\operatorname{ل}',
+  '\comb': '\operatorname{ق}',
+
   // ─── Probability & statistics ────────────────────────────
   '\\Pr': '\\operatorname{حا}',
   '\\P': '\\operatorname{حا}',
 
   // ─── Complex & argument ──────────────────────────────────
-  '\\arg': '\\operatorname{سعة}',
+  '\\arg': '\\operatorname{θ}',
   '\\deg': '\\operatorname{درجة}',
   '\\sgn': '\\operatorname{إشا}',
   '\\Re': '\\operatorname{حق}',

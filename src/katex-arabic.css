@@ -212,6 +212,19 @@
   -webkit-backface-visibility: hidden;
 }
 
+/* ─── Limit subscript (دليل النهاية) ─────────────────────────
+   The bound stacked under نها / أقصى / أدنى (…\limits operators)
+   renders in KaTeX's mtight script sizing, which still reads large
+   next to the operator name. Shrink it with a layout-neutral scale
+   so KaTeX's computed row metrics stay intact and only the glyphs
+   get smaller. Tunable per wrapper:
+       .math-equation { --ka-limit-subscript-scale: 0.8; } */
+.katex-arabic .katex .mop.op-limits .katex-sizing.mtight {
+  display: inline-block;
+  transform-origin: bottom right;
+  transform: scale(var(--ka-limit-subscript-scale, 0.8));
+}
+
 /* ─── Mirrored relations & arrows: stop bidi re-mirroring ───
    The LaTeX pipeline already swaps mirrored symbols (∈→∋, ⊂→⊃,
    →→←, <→>, ≤→≥, …), so the SOURCE glyph carries the Arabic
@@ -315,8 +328,23 @@
    the radical hook — and drop the negative outer margin, which
    would otherwise hang the index past the container's right edge. */
 .katex-arabic.mirror-sqrt .katex .sqrt > .katex-root {
-  margin-left: 0.05em;
+  margin-left: 0;
   margin-right: 0;
+  /* Arabic root degree (ن) still reads large and floats a touch high
+     for Arabic typography. Shrink it and nudge it down toward the
+     radical hook. These are pure visual transforms (GPU-composited,
+     layout-offset-neutral) — the same pattern as the integral-bound
+     nudge above, so none of KaTeX's computed v-list offsets shift.
+     Tunable per wrapper:
+         .math-equation {
+           --ka-root-index-scale: 0.8;
+           --ka-root-index-y: 0.15em;
+         } */
+  display: inline-block;
+  transform-origin: top right;
+  transform:
+    translateY(var(--ka-root-index-y, 0.15em))
+    scale(var(--ka-root-index-scale, 0.8));
 }
 
 /* ─── Brackets: swap opening and closing pairs visually ──── */
@@ -426,9 +454,16 @@
 
 /* The vector arrow (\vec) is an SVG inside a fixed-width overlay
    block; centre that block over the base. Its em-sized box scales
-   with the font-size above, so the arrow grows with the mark. */
+   with the font-size above, so the arrow grows with the mark.
+   The source glyph points right (→); under RTL the vector arrow
+   must point to the reading start, so mirror it horizontally. */
 .katex-arabic .katex .katex-accent .accent-body .katex-overlay {
   margin-inline: auto;
+  transform: var(--ka-mirror-transform) translateZ(0);
+  -webkit-transform: var(--ka-mirror-transform) translateZ(0);
+  transform-origin: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ═══════════════════════════════════════════════════════════════

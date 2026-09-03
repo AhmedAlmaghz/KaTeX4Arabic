@@ -369,6 +369,10 @@ export function getArabicMacros(
     '\\اقصى': '\\operatorname*{أقصى}',
     '\\ادنى': '\\operatorname*{أدنى}',
 
+    // Combinatorics (التباديل / التوافيق → big ل / big ق)
+    '\تباديل': '\operatorname{ل}',
+    '\توافيق': '\operatorname{ق}',
+
     // Imaginary / constants
     '\\ت': '\\text{ت}',
     '\\هـ': '\\text{هـ}',

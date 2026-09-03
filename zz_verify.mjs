@@ -1,0 +1,12 @@
+﻿import { translateFunctions, translateVariables, translateDifferentials } from './src/lib/katex-arabic/index.ts';
+console.warn = () => {};
+const r = translateVariables('\\sqrt{ r^2 + 2\\pi r }');
+const arg = translateFunctions('\\arg(z)');
+const perm = translateFunctions('\\perm(n, k)');
+const comb = translateFunctions('\\comb(n, k)');
+const dr = translateDifferentials('dr');
+console.log('r ->', JSON.stringify(r));
+console.log('arg ->', JSON.stringify(arg));
+console.log('perm ->', JSON.stringify(perm));
+console.log('comb ->', JSON.stringify(comb));
+console.log('dr ->', JSON.stringify(dr));
