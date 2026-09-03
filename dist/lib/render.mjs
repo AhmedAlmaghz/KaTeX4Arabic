@@ -135,11 +135,14 @@ const FUNCTION_MAP = {
   "\\lcm": "\\operatorname{م.م.أ}",
   "\\mod": "\\operatorname{باقي}",
   "\\bmod": "\\operatorname{باقي}",
+  // ─── Combinatorics (التباديل / التوافيق) ───────────────────
+  "\\perm": "\\operatorname{ل}",
+  "\\comb": "\\operatorname{ق}",
   // ─── Probability & statistics ────────────────────────────
   "\\Pr": "\\operatorname{حا}",
   "\\P": "\\operatorname{حا}",
   // ─── Complex & argument ──────────────────────────────────
-  "\\arg": "\\operatorname{سعة}",
+  "\\arg": "\\operatorname{θ}",
   "\\deg": "\\operatorname{درجة}",
   "\\sgn": "\\operatorname{إشا}",
   "\\Re": "\\operatorname{حق}",
@@ -227,7 +230,7 @@ const VARIABLE_MAP = {
   W: "و",
   X: "س",
   Y: "ص",
-  Z: "ز"
+  Z: "ع"
 };
 const GREEK_MAP = {
   "\\alpha": "α",
@@ -840,6 +843,9 @@ function getArabicMacros(customMacros = {}) {
     // Max/min
     "\\اقصى": "\\operatorname*{أقصى}",
     "\\ادنى": "\\operatorname*{أدنى}",
+    // Combinatorics (التباديل / التوافيق → big ل / big ق)
+    "\\تباديل": "\\operatorname{ل}",
+    "\\توافيق": "\\operatorname{ق}",
     // Imaginary / constants
     "\\ت": "\\text{ت}",
     "\\هـ": "\\text{هـ}",

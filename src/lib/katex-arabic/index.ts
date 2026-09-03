@@ -104,7 +104,7 @@ export {
 // ─── Version constant ──────────────────────────────────────
 // Kept in sync with package.json by scripts/build-cdn.mjs
 // (the CDN build fails if these ever drift apart).
-export const VERSION = '1.1.7';
+export const VERSION = '1.1.8';
 
 // ═══════════════════════════════════════════════════════════════
 //  Default export — the "KaTeXArabic" namespace

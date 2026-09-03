@@ -11389,11 +11389,14 @@ const zi = {
   "\\lcm": "\\operatorname{م.م.أ}",
   "\\mod": "\\operatorname{باقي}",
   "\\bmod": "\\operatorname{باقي}",
+  // ─── Combinatorics (التباديل / التوافيق) ───────────────────
+  "\\perm": "\\operatorname{ل}",
+  "\\comb": "\\operatorname{ق}",
   // ─── Probability & statistics ────────────────────────────
   "\\Pr": "\\operatorname{حا}",
   "\\P": "\\operatorname{حا}",
   // ─── Complex & argument ──────────────────────────────────
-  "\\arg": "\\operatorname{سعة}",
+  "\\arg": "\\operatorname{θ}",
   "\\deg": "\\operatorname{درجة}",
   "\\sgn": "\\operatorname{إشا}",
   "\\Re": "\\operatorname{حق}",
@@ -11480,7 +11483,7 @@ const zi = {
   W: "و",
   X: "س",
   Y: "ص",
-  Z: "ز"
+  Z: "ع"
 }, Mi = ["x", "y", "z", "t", "r", "u", "v", "s", "A", "V", "S"];
 Object.fromEntries(
   Mi.map((r) => {
@@ -11935,6 +11938,9 @@ function Za(r = {}) {
     // Max/min
     "\\اقصى": "\\operatorname*{أقصى}",
     "\\ادنى": "\\operatorname*{أدنى}",
+    // Combinatorics (التباديل / التوافيق → big ل / big ق)
+    "\\تباديل": "\\operatorname{ل}",
+    "\\توافيق": "\\operatorname{ق}",
     // Imaginary / constants
     "\\ت": "\\text{ت}",
     "\\هـ": "\\text{هـ}",
@@ -12032,7 +12038,7 @@ function _i(r, e) {
   const t = Z0(e), a = r.querySelector(".katex");
   a && (a.setAttribute("dir", t.direction), a.style.setProperty("--ka-font-family", Qa(t.fontFamily)), a.style.direction = t.direction);
 }
-const e4 = "1.1.7", r4 = {
+const e4 = "1.1.8", r4 = {
   // ─── Rendering ───────────────────────────────────────────
   render: Zi,
   renderToString: _a,
